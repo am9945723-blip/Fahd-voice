@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Fahd Voice</title>
+  <script src="https://unpkg.com/zego-express-engine-webrtc/light/index.js"></script>
   <style>
     * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
     body {
@@ -171,14 +172,84 @@
   </div>
 
   <script>
-    var ZEGO = { appId: 1110788264, appSign: "385a7f5c710a552022440be2ee725dca8d01796396ee9927cd661a0ee7b7e610" };
+    var ZEGO = {
+      appId: 1110788264,
+      appSign: "385a7f5c710a552022440be2ee725dca8d01796396ee9927cd661a0ee7b7e610",
+      server: "wss://webliveroom1110788264-api.zego.im/ws"
+    };
+
     var user = "فهد", tab = "popular", seats = [], muted = false;
+    var zg = null, localStream = null, activeRoomId = null, userId = "u_" + Math.floor(100000 + Math.random() * 900000);
+
     var rooms = [
       { id: "1130318", title: "غرفة الإدارة الرسمية", agency: "وكالة الفهد", tag: "مميزة", online: "48.0k", cat: "popular", bg: "linear-gradient(135deg,#5a3c09,#17130c)" },
       { id: "32823", title: "سهرة ترند العرب", agency: "وكالة ترند العرب", tag: "أصدقاء", online: "678.6k", cat: "popular", bg: "linear-gradient(135deg,#2e1d52,#14111c)" },
       { id: "1087188", title: "قلبي ومفتاحه", agency: "غرفة السهرات", tag: "VIP", online: "125.7k", cat: "mine", bg: "linear-gradient(135deg,#541629,#171014)" },
       { id: "90500", title: "تحدي المايكات", agency: "ساحة التحديات", tag: "لعبة", online: "28.0k", cat: "games", bg: "linear-gradient(135deg,#144233,#0e1412)" }
     ];
+
+    function initZegoEngine() {
+      if (zg || !window.ZegoExpressEngine) return;
+      zg = new window.ZegoExpressEngine(ZEGO.appId, ZEGO.server);
+      zg.on("roomStreamUpdate", async function(roomID, updateType, streamList) {
+        if (updateType === "ADD") {
+          for (var i = 0; i < streamList.length; i++) {
+            var st = streamList[i];
+            try {
+              var remoteStream = await zg.startPlayingStream(st.streamID);
+              var audioEl = document.createElement("audio");
+              audioEl.autoplay = true;
+              audioEl.srcObject = remoteStream;
+              audioEl.play().catch(function(){});
+              sysMsg("🔊 متصل بصوت المتحدث في الروم");
+            } catch (e) {}
+          }
+        }
+      });
+    }
+
+    async function joinZegoRoom(roomId) {
+      initZegoEngine();
+      if (!zg) {
+        sysMsg("⚠️ تعذر تحميل محرك الصوت، تأكد من الاتصال بالإنترنت.");
+        return;
+      }
+      activeRoomId = String(roomId || "1130318").replace(/[^a-zA-Z0-9_]/g, "_") || "1130318";
+      try {
+        await zg.loginRoom(activeRoomId, "", { userID: userId, userName: user }, { userUpdate: true });
+        sysMsg("✅ تم الاتصال بالغرفة الصوتية (" + activeRoomId + ")");
+      } catch (err) {
+        sysMsg("ℹ️ وضع الصوت المحلي جاهز — اضغط على أي مايك لتجربة المايكروفون");
+      }
+    }
+
+    async function publishMicAudio() {
+      try {
+        if (!localStream && zg) {
+          localStream = await zg.createStream({ camera: { video: false, audio: true } });
+          await zg.startPublishingStream("s_" + userId + "_" + Date.now(), localStream);
+          sysMsg("🎙️ المايك شغال ومرتبط بالبث الصوتي");
+        } else if (localStream && zg) {
+          zg.mutePublishStreamAudio(localStream, muted);
+        }
+      } catch (e) {
+        sysMsg("🎙️ تأكد من السماح بإذن المايكروفون للتطبيق");
+      }
+    }
+
+    async function leaveZegoRoom() {
+      try {
+        if (localStream && zg) {
+          zg.stopPublishingStream("s_" + userId);
+          zg.destroyStream(localStream);
+          localStream = null;
+        }
+        if (activeRoomId && zg) {
+          await zg.logoutRoom(activeRoomId);
+          activeRoomId = null;
+        }
+      } catch (e) {}
+    }
 
     function drawHome() {
       document.getElementById("unameTxt").textContent = user;
@@ -208,21 +279,25 @@
       document.getElementById("micBtn").textContent = "🎙️";
       drawMics();
       sysMsg("مرحباً " + user + " في " + r.title);
+      joinZegoRoom(r.id);
     }
 
     function drawMics() {
       var box = document.getElementById("micsBox");
       box.innerHTML = "";
-      seats.forEach(function(s, idx) {
+      seats.forEach(function(s) {
         var el = document.createElement("div");
         el.className = "mic";
         el.innerHTML = '<div class="mring"><div class="min">' + (s.u ? s.u[0] : "🎙️") + '</div><span class="mnum">' + s.n + '</span></div><div class="mname">' + (s.u || ("مايك " + s.n)) + '</div><div class="mpts">' + (s.u ? ("💎 " + s.p) : "متاح") + '</div>';
         el.onclick = function() {
-          if (s.u === user) { s.u = null; sysMsg(user + " نزل من مايك " + s.n); }
-          else {
+          if (s.u === user) {
+            s.u = null;
+            sysMsg(user + " نزل من مايك " + s.n);
+          } else {
             seats.forEach(function(x){ if (x.u === user) x.u = null; });
             s.u = user;
             sysMsg(user + " صعد على مايك " + s.n);
+            publishMicAudio();
           }
           drawMics();
         };
@@ -284,6 +359,7 @@
     document.getElementById("trophyBtn").onclick = function(){ enterRoom(rooms[0]); };
     document.getElementById("quickBanner").onclick = function(){ enterRoom(rooms[0]); };
     document.getElementById("exitBtn").onclick = function() {
+      leaveZegoRoom();
       document.getElementById("roomView").style.display = "none";
       document.getElementById("homeView").style.display = "flex";
       drawHome();
@@ -293,38 +369,4 @@
     document.getElementById("micBtn").onclick = function() {
       muted = !muted;
       this.textContent = muted ? "🔇" : "🎙️";
-      sysMsg(muted ? (user + " كتم المايك") : (user + " فتح المايك"));
-    };
-    document.getElementById("giftBtn").onclick = function() {
-      var st = seats.find(function(x){ return x.u; });
-      if (st) st.p += 500;
-      drawMics();
-      sysMsg("🎁 " + user + " أرسل هدية ذهبية!");
-    };
-    document.getElementById("fireBtn").onclick = function(){ sysMsg("🔥 " + user + " يتفاعل بحماس!"); };
-    document.getElementById("saveProfBtn").onclick = function() {
-      var v = document.getElementById("profInput").value.trim();
-      if (v) user = v;
-      document.getElementById("profModal").style.display = "none";
-      drawHome();
-    };
-    document.getElementById("closeProfBtn").onclick = function(){ document.getElementById("profModal").style.display = "none"; };
-    document.getElementById("openCreateBtn").onclick = function() {
-      document.getElementById("newTitle").value = "";
-      document.getElementById("newId").value = "";
-      document.getElementById("createModal").style.display = "flex";
-    };
-    document.getElementById("closeRoomBtn").onclick = function(){ document.getElementById("createModal").style.display = "none"; };
-    document.getElementById("saveRoomBtn").onclick = function() {
-      var t = document.getElementById("newTitle").value.trim() || "روم جديدة";
-      var id = document.getElementById("newId").value.trim() || "1130318";
-      var nr = { id: id, title: t, agency: user, tag: "جديدة", online: "1", cat: "mine", bg: "linear-gradient(135deg,#5a3c09,#17130c)" };
-      rooms.unshift(nr);
-      document.getElementById("createModal").style.display = "none";
-      enterRoom(nr);
-    };
-
-    drawHome();
-  </script>
-</body>
-</html>
+      if (localStream && zg) 
