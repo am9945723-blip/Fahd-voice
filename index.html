@@ -5,273 +5,326 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Fahd Voice</title>
   <style>
-    :root {
-      --bg: #090807;
-      --surface: #141210;
-      --gold: #eab938;
-      --gold-light: #ffe38e;
-      --gold-dark: #9a6d10;
-      --gold-border: rgba(234, 185, 56, 0.45);
-      --text: #fffdf7;
-      --muted: #b7ad96;
-    }
     * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
     body {
-      margin: 0; min-height: 100vh;
-      background: radial-gradient(circle at 50% 0%, rgba(234, 185, 56, 0.24), transparent 46%), linear-gradient(180deg, #161108 0%, var(--bg) 42%, #060605 100%);
-      color: var(--text); display: flex; justify-content: center;
+      margin: 0; min-height: 100vh; color: #fffdf7;
+      background: radial-gradient(circle at 50% 0%, rgba(234,185,56,0.22), transparent 45%), #090807;
+      display: flex; justify-content: center;
     }
-    .phone-frame { width: 100%; max-width: 480px; min-height: 100vh; position: relative; display: flex; flex-direction: column; overflow-x: hidden; }
-    .home-screen { display: flex; flex-direction: column; min-height: 100vh; padding-bottom: 72px; background: radial-gradient(circle at 50% 4%, rgba(255, 215, 110, 0.28), transparent 40%), linear-gradient(180deg, #241908 0%, #120f0a 24%, #090807 100%); }
-    .top-bar { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; gap: 8px; }
-    .user-chip { display: flex; align-items: center; gap: 8px; background: rgba(28, 22, 12, 0.88); border: 1px solid var(--gold-border); border-radius: 999px; padding: 4px 10px 4px 6px; cursor: pointer; }
-    .avatar-ring { width: 34px; height: 34px; border-radius: 50%; padding: 2px; background: linear-gradient(135deg, var(--gold-light), var(--gold-dark)); display: flex; align-items: center; justify-content: center; font-weight: 800; color: #161106; font-size: 13px; }
-    .u-name { font-size: 12.5px; font-weight: 800; color: var(--gold-light); }
-    .u-id { font-size: 10px; color: var(--muted); }
-    .quick-icons { display: flex; gap: 6px; }
-    .icon-btn { width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--gold-border); background: rgba(24, 20, 14, 0.88); color: var(--gold-light); font-size: 14px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-    .banner-gold { margin: 4px 12px 8px; padding: 12px 14px; border-radius: 16px; background: linear-gradient(115deg, #5e3f09 0%, #9b6c14 48%, #472e05 100%); border: 1.5px solid var(--gold-light); box-shadow: 0 8px 22px rgba(234, 185, 56, 0.22); display: flex; align-items: center; justify-content: space-between; gap: 10px; cursor: pointer; }
-    .b-title { font-size: 14px; font-weight: 900; color: #fff6d1; }
-    .b-sub { font-size: 11px; color: #ffe89e; margin-top: 2px; }
-    .banner-badge { background: linear-gradient(135deg, #fff0b3, #d99f1c); color: #1a1203; font-weight: 900; font-size: 11px; padding: 6px 10px; border-radius: 12px; white-space: nowrap; }
-    .ticker-bar { margin: 0 12px 10px; padding: 8px 12px; border-radius: 999px; background: linear-gradient(90deg, rgba(234, 185, 56, 0.22), rgba(234, 185, 56, 0.08)); border: 1px solid var(--gold-border); font-size: 11.5px; color: var(--gold-light); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .tabs-row { display: flex; align-items: center; justify-content: space-between; padding: 2px 12px 10px; gap: 8px; }
-    .seg-tabs { display: flex; gap: 8px; align-items: center; }
-    .seg-tab { border: 1px solid #352d1d; background: #17140f; color: var(--muted); padding: 6px 14px; border-radius: 999px; font-size: 12.5px; font-weight: 700; cursor: pointer; }
-    .seg-tab.active { background: linear-gradient(135deg, var(--gold-light), var(--gold)); color: #161106; border-color: var(--gold-light); }
-    .create-room-mini { border: 1px solid var(--gold-border); background: rgba(234, 185, 56, 0.14); color: var(--gold-light); padding: 6px 11px; border-radius: 999px; font-size: 11.5px; font-weight: 800; cursor: pointer; }
-    .rooms-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 0 12px; }
-    .room-card { border-radius: 16px; overflow: hidden; background: var(--surface); border: 1px solid var(--gold-border); cursor: pointer; display: flex; flex-direction: column; box-shadow: 0 8px 18px rgba(0, 0, 0, 0.45); }
-    .room-thumb { height: 112px; padding: 8px; display: flex; flex-direction: column; justify-content: space-between; background-size: cover; background-position: center; }
-    .thumb-tag { align-self: flex-start; background: rgba(14, 12, 9, 0.78); border: 1px solid var(--gold-border); color: var(--gold-light); font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 999px; }
-    .thumb-bottom { display: flex; align-items: center; justify-content: space-between; font-size: 11px; font-weight: 800; color: #fff; text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9); }
-    .room-card-body { padding: 8px 10px; background: linear-gradient(180deg, #1b1711, #110f0c); }
-    .room-card-title { font-size: 12.5px; font-weight: 800; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .room-card-agency { font-size: 10.5px; color: var(--gold); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; height: 62px; background: linear-gradient(180deg, #1a150c, #0c0a07); border-top: 1px solid var(--gold-border); display: grid; grid-template-columns: repeat(5, 1fr); align-items: center; z-index: 20; }
-    .nav-item { border: none; background: transparent; color: var(--muted); display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 10px; font-weight: 700; cursor: pointer; padding: 4px 2px; }
-    .nav-item .n-ico { font-size: 17px; }
-    .nav-item.active { color: var(--gold-light); }
-    .room-screen { display: none; flex-direction: column; min-height: 100vh; padding: 10px; justify-content: space-between; gap: 10px; background: radial-gradient(circle at 50% 22%, rgba(234, 185, 56, 0.16), transparent 52%), linear-gradient(180deg, rgba(16, 13, 8, 0.92) 0%, rgba(10, 9, 8, 0.96) 100%); }
-    .r-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; background: rgba(20, 17, 12, 0.85); border: 1px solid var(--gold-border); border-radius: 16px; padding: 8px 10px; }
-    .r-name { font-size: 13.5px; font-weight: 900; color: var(--gold-light); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .r-meta { font-size: 10.5px; color: var(--muted); }
-    .r-top-btns { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
-    .r-pill { background: rgba(234, 185, 56, 0.14); border: 1px solid var(--gold-border); color: var(--gold-light); font-size: 10.5px; font-weight: 700; padding: 4px 8px; border-radius: 999px; }
-    .r-leave { background: rgba(201, 74, 90, 0.22); border: 1px solid rgba(201, 74, 90, 0.6); color: #ff9ca8; font-size: 11px; font-weight: 800; padding: 5px 9px; border-radius: 10px; cursor: pointer; }
-    .host-stage { display: flex; flex-direction: column; align-items: center; margin: 2px 0; }
-    .host-throne { width: 66px; height: 66px; border-radius: 50%; padding: 3px; background: linear-gradient(135deg, #fff0ad, var(--gold), #8c5f09); box-shadow: 0 0 22px rgba(234, 185, 56, 0.35); }
-    .host-inner { width: 100%; height: 100%; border-radius: 50%; background: #1a140b; display: flex; align-items: center; justify-content: center; font-size: 26px; }
-    .host-label { margin-top: 4px; font-size: 11px; font-weight: 800; color: var(--gold-light); background: rgba(22, 18, 11, 0.85); border: 1px solid var(--gold-border); padding: 2px 10px; border-radius: 999px; }
-    .seats-8-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px 6px; }
-    .mic-slot { display: flex; flex-direction: column; align-items: center; text-align: center; cursor: pointer; }
-    .mic-circle-wrap { width: 54px; height: 54px; border-radius: 50%; padding: 2px; background: linear-gradient(135deg, var(--gold-light), var(--gold-dark)); position: relative; display: flex; align-items: center; justify-content: center; }
-    .mic-circle { width: 100%; height: 100%; border-radius: 50%; background: #14110c; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800; color: var(--gold-light); }
-    .mic-num { position: absolute; bottom: -3px; background: #1f1a10; border: 1px solid var(--gold-border); color: var(--gold-light); font-size: 9px; font-weight: 800; padding: 0 5px; border-radius: 999px; }
-    .mic-name { margin-top: 5px; font-size: 10.5px; color: var(--text); font-weight: 700; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .mic-pts { font-size: 9.5px; color: var(--gold); }
-    .r-chat-box { background: rgba(14, 12, 9, 0.72); border: 1px solid rgba(234, 185, 56, 0.25); border-radius: 14px; padding: 8px 10px; height: 132px; overflow-y: auto; display: flex; flex-direction: column; gap: 5px; font-size: 12px; }
-    .r-msg-sys { color: var(--gold-light); font-size: 11px; }
-    .r-msg-user strong { color: var(--gold); margin-left: 4px; }
-    .r-bottom-bar { display: flex; align-items: center; gap: 6px; }
-    .r-msg-input { flex: 1; min-width: 0; padding: 9px 11px; border-radius: 999px; border: 1px solid var(--gold-border); background: rgba(20, 17, 12, 0.92); color: var(--text); font-size: 12px; outline: none; }
-    .r-action-btn { width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--gold-border); background: rgba(26, 21, 13, 0.92); color: var(--gold-light); font-size: 15px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
-    .r-action-btn.gift-btn { background: linear-gradient(135deg, var(--gold-light), var(--gold)); color: #161106; font-weight: 800; }
-    .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.72); z-index: 40; align-items: center; justify-content: center; padding: 16px; }
-    .modal-card { width: 100%; max-width: 380px; background: #16130d; border: 1px solid var(--gold-border); border-radius: 18px; padding: 16px; }
-    .modal-card h3 { margin: 0 0 10px; color: var(--gold-light); font-size: 15px; }
-    .modal-card input { width: 100%; padding: 10px 12px; border-radius: 11px; border: 1px solid #352d1d; background: #0d0b08; color: var(--text); margin-bottom: 10px; font-size: 13px; }
-    .modal-btns { display: flex; gap: 8px; }
-    .modal-btns button { flex: 1; padding: 10px; border-radius: 11px; border: none; font-weight: 800; cursor: pointer; }
-    .btn-save { background: linear-gradient(135deg, var(--gold-light), var(--gold)); color: #161106; }
-    .btn-cancel { background: #252017; color: var(--text); }
+    .app { width: 100%; max-width: 480px; min-height: 100vh; display: flex; flex-direction: column; position: relative; }
+    .home { display: flex; flex-direction: column; padding-bottom: 74px; }
+    .top { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; }
+    .chip { display: flex; align-items: center; gap: 8px; background: #1a150c; border: 1px solid rgba(234,185,56,0.45); border-radius: 999px; padding: 5px 10px 5px 6px; cursor: pointer; }
+    .av { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg,#ffe38e,#9a6d10); color: #161106; font-weight: 900; display: flex; align-items: center; justify-content: center; }
+    .uname { font-size: 13px; font-weight: 800; color: #ffe38e; }
+    .uid { font-size: 10px; color: #b7ad96; }
+    .top-btns { display: flex; gap: 6px; }
+    .ibtn { width: 34px; height: 34px; border-radius: 50%; border: 1px solid rgba(234,185,56,0.45); background: #19150e; color: #ffe38e; font-size: 14px; cursor: pointer; }
+    .banner { margin: 4px 12px 8px; padding: 12px 14px; border-radius: 16px; background: linear-gradient(120deg,#5e3f09,#9b6c14,#472e05); border: 1.5px solid #ffe38e; display: flex; justify-content: space-between; align-items: center; gap: 8px; cursor: pointer; }
+    .btitle { font-size: 14px; font-weight: 900; color: #fff6d1; }
+    .bsub { font-size: 11px; color: #ffe89e; margin-top: 2px; }
+    .btag { background: linear-gradient(135deg,#fff0b3,#d99f1c); color: #1a1203; font-weight: 900; font-size: 11px; padding: 6px 10px; border-radius: 12px; white-space: nowrap; }
+    .ticker { margin: 0 12px 10px; padding: 8px 12px; border-radius: 999px; background: rgba(234,185,56,0.14); border: 1px solid rgba(234,185,56,0.4); font-size: 11.5px; color: #ffe38e; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .tabs { display: flex; justify-content: space-between; align-items: center; padding: 0 12px 10px; gap: 6px; }
+    .tab-group { display: flex; gap: 6px; }
+    .tab { border: 1px solid #352d1d; background: #17140f; color: #b7ad96; padding: 6px 13px; border-radius: 999px; font-size: 12px; font-weight: 700; cursor: pointer; }
+    .tab.active { background: linear-gradient(135deg,#ffe38e,#eab938); color: #161106; border-color: #ffe38e; }
+    .add-btn { border: 1px solid rgba(234,185,56,0.5); background: rgba(234,185,56,0.15); color: #ffe38e; padding: 6px 10px; border-radius: 999px; font-size: 11.5px; font-weight: 800; cursor: pointer; }
+    .grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; padding: 0 12px; }
+    .rcard { border-radius: 15px; overflow: hidden; background: #141210; border: 1px solid rgba(234,185,56,0.45); cursor: pointer; }
+    .rthumb { height: 104px; padding: 8px; display: flex; flex-direction: column; justify-content: space-between; }
+    .rbadge { align-self: flex-start; background: rgba(10,9,7,0.75); border: 1px solid rgba(234,185,56,0.45); color: #ffe38e; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 999px; }
+    .rfoot { display: flex; justify-content: space-between; font-size: 11px; font-weight: 800; }
+    .rbody { padding: 8px 10px; background: #18140e; }
+    .rtitle { font-size: 12.5px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ragency { font-size: 10.5px; color: #eab938; margin-top: 2px; }
+    .nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; height: 62px; background: #120f09; border-top: 1px solid rgba(234,185,56,0.45); display: grid; grid-template-columns: repeat(5,1fr); align-items: center; z-index: 20; }
+    .nbtn { border: none; background: none; color: #b7ad96; display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 10px; font-weight: 700; cursor: pointer; }
+    .nbtn.active { color: #ffe38e; }
+    .room { display: none; flex-direction: column; min-height: 100vh; padding: 10px; justify-content: space-between; gap: 8px; }
+    .rtop { display: flex; justify-content: space-between; align-items: center; gap: 8px; background: #17130c; border: 1px solid rgba(234,185,56,0.45); border-radius: 15px; padding: 8px 10px; }
+    .rname { font-size: 13.5px; font-weight: 900; color: #ffe38e; }
+    .rmeta { font-size: 10.5px; color: #b7ad96; }
+    .exit { background: rgba(201,74,90,0.2); border: 1px solid rgba(201,74,90,0.6); color: #ff9ca8; border-radius: 10px; padding: 5px 10px; font-size: 11px; font-weight: 800; cursor: pointer; }
+    .host { display: flex; flex-direction: column; align-items: center; }
+    .throne { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg,#fff0ad,#eab938,#8c5f09); padding: 3px; }
+    .throne-in { width: 100%; height: 100%; border-radius: 50%; background: #1a140b; display: flex; align-items: center; justify-content: center; font-size: 25px; }
+    .hlabel { margin-top: 4px; font-size: 11px; font-weight: 800; color: #ffe38e; background: #1b160d; border: 1px solid rgba(234,185,56,0.45); padding: 2px 10px; border-radius: 999px; }
+    .mics { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px 6px; }
+    .mic { display: flex; flex-direction: column; align-items: center; text-align: center; cursor: pointer; }
+    .mring { width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg,#ffe38e,#9a6d10); padding: 2px; position: relative; }
+    .min { width: 100%; height: 100%; border-radius: 50%; background: #14110c; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800; color: #ffe38e; }
+    .mnum { position: absolute; bottom: -3px; left: 50%; transform: translateX(-50%); background: #1f1a10; border: 1px solid rgba(234,185,56,0.45); color: #ffe38e; font-size: 9px; font-weight: 800; padding: 0 5px; border-radius: 999px; }
+    .mname { margin-top: 5px; font-size: 10.5px; font-weight: 700; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .mpts { font-size: 9.5px; color: #eab938; }
+    .chat { background: #120f0b; border: 1px solid rgba(234,185,56,0.3); border-radius: 14px; padding: 8px 10px; height: 135px; overflow-y: auto; display: flex; flex-direction: column; gap: 5px; font-size: 12px; }
+    .sys { color: #ffe38e; font-size: 11px; }
+    .bar { display: flex; gap: 6px; align-items: center; }
+    .minput { flex: 1; min-width: 0; padding: 9px 12px; border-radius: 999px; border: 1px solid rgba(234,185,56,0.45); background: #17130c; color: #fff; font-size: 12px; }
+    .abtn { width: 38px; height: 38px; border-radius: 50%; border: 1px solid rgba(234,185,56,0.45); background: #1c170e; color: #ffe38e; font-size: 15px; cursor: pointer; flex-shrink: 0; }
+    .gbtn { background: linear-gradient(135deg,#ffe38e,#eab938); color: #161106; font-weight: 900; }
+    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.72); z-index: 40; align-items: center; justify-content: center; padding: 16px; }
+    .mcard { width: 100%; max-width: 360px; background: #16130d; border: 1px solid rgba(234,185,56,0.5); border-radius: 16px; padding: 14px; }
+    .mcard h3 { margin: 0 0 10px; color: #ffe38e; font-size: 14px; }
+    .mcard input { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #352d1d; background: #0d0b08; color: #fff; margin-bottom: 10px; }
+    .mbtns { display: flex; gap: 8px; }
+    .mbtns button { flex: 1; padding: 9px; border-radius: 10px; border: none; font-weight: 800; cursor: pointer; }
+    .save { background: linear-gradient(135deg,#ffe38e,#eab938); color: #161106; }
+    .cancel { background: #262118; color: #fff; }
   </style>
 </head>
 <body>
-  <div class="phone-frame">
-    <section class="home-screen" id="homeScreen">
-      <div class="top-bar">
-        <div class="user-chip" onclick="openProfileModal()">
-          <div class="avatar-ring" id="topAvatar">ف</div>
+  <div class="app">
+    <div class="home" id="homeView">
+      <div class="top">
+        <div class="chip" id="profileChip">
+          <div class="av" id="avTxt">ف</div>
           <div>
-            <div class="u-name" id="topUserName">الوكيل فهد</div>
-            <div class="u-id">ID: 1130318</div>
+            <div class="uname" id="unameTxt">الوكيل فهد</div>
+            <div class="uid">ID: 1130318</div>
           </div>
         </div>
-        <div class="quick-icons">
-          <button class="icon-btn" onclick="openProfileModal()">✏️</button>
-          <button class="icon-btn" onclick="openRoom(ROOMS[0])">🏆</button>
+        <div class="top-btns">
+          <button class="ibtn" id="editBtn">✏️</button>
+          <button class="ibtn" id="trophyBtn">🏆</button>
         </div>
       </div>
 
-      <div class="banner-gold" onclick="openRoom(ROOMS[0])">
+      <div class="banner" id="quickBanner">
         <div>
-          <div class="b-title">سهرة وكالات Fahd Voice الذهبية</div>
-          <div class="b-sub">غرف صوتية • مايكات مفتوحة • هدايا فورية</div>
+          <div class="btitle">سهرة وكالات Fahd Voice الذهبية</div>
+          <div class="bsub">غرف صوتية • مايكات مفتوحة • هدايا فورية</div>
         </div>
-        <div class="banner-badge">دخول سريع</div>
+        <div class="btag">دخول سريع</div>
       </div>
 
-      <div class="ticker-bar">✨ توصيات مميزة: وكالة الفهد وترند العرب — اضغط على أي غرفة للدخول مباشرة ✨</div>
+      <div class="ticker">✨ توصيات مميزة: وكالة الفهد وترند العرب — اضغط على أي غرفة للدخول مباشرة ✨</div>
 
-      <div class="tabs-row">
-        <div class="seg-tabs">
-          <button class="seg-tab active" data-tab="popular" onclick="switchTab('popular', this)">شائع</button>
-          <button class="seg-tab" data-tab="mine" onclick="switchTab('mine', this)">غرفي</button>
-          <button class="seg-tab" data-tab="games" onclick="switchTab('games', this)">لعبة</button>
+      <div class="tabs">
+        <div class="tab-group">
+          <button class="tab active" data-t="popular">شائع</button>
+          <button class="tab" data-t="mine">غرفي</button>
+          <button class="tab" data-t="games">لعبة</button>
         </div>
-        <button class="create-room-mini" onclick="openCreateRoomModal()">+ إنشاء روم</button>
+        <button class="add-btn" id="openCreateBtn">+ إنشاء روم</button>
       </div>
 
-      <div class="rooms-grid" id="roomsGrid"></div>
+      <div class="grid" id="roomsGrid"></div>
 
-      <nav class="bottom-nav">
-        <button class="nav-item active" onclick="setNav(this, 'popular')"><span class="n-ico">🏠</span><span>غرف</span></button>
-        <button class="nav-item" onclick="setNav(this, 'games')"><span class="n-ico">🎮</span><span>لعبة</span></button>
-        <button class="nav-item" onclick="setNav(this, 'popular')"><span class="n-ico">🪐</span><span>اكتشاف</span></button>
-        <button class="nav-item" onclick="openRoom(ROOMS[0])"><span class="n-ico">🔔</span><span>الرسائل</span></button>
-        <button class="nav-item" onclick="openProfileModal()"><span class="n-ico">👑</span><span>حسابي</span></button>
-      </nav>
-    </section>
+      <div class="nav" id="bottomNav">
+        <button class="nbtn active" data-t="popular"><span>🏠</span><span>غرف</span></button>
+        <button class="nbtn" data-t="games"><span>🎮</span><span>لعبة</span></button>
+        <button class="nbtn" data-t="popular"><span>🪐</span><span>اكتشاف</span></button>
+        <button class="nbtn" data-action="room"><span>🔔</span><span>الرسائل</span></button>
+        <button class="nbtn" data-action="profile"><span>👑</span><span>حسابي</span></button>
+      </div>
+    </div>
 
-    <section class="room-screen" id="roomScreen">
-      <div class="r-top">
+    <div class="room" id="roomView">
+      <div class="rtop">
         <div>
-          <div class="r-name" id="activeRoomName">غرفة الإدارة</div>
-          <div class="r-meta" id="activeRoomMeta">ID: 1130318</div>
+          <div class="rname" id="rName">غرفة الإدارة</div>
+          <div class="rmeta" id="rMeta">ID: 1130318</div>
         </div>
-        <div class="r-top-btns">
-          <span class="r-pill" id="activeRoomOnline">24 متصل</span>
-          <button class="r-leave" onclick="leaveRoom()">خروج</button>
-        </div>
+        <button class="exit" id="exitBtn">خروج</button>
       </div>
 
-      <div class="host-stage">
-        <div class="host-throne"><div class="host-inner">👑</div></div>
-        <div class="host-label" id="hostLabel">مضيف الروم • فهد</div>
+      <div class="host">
+        <div class="throne"><div class="throne-in">👑</div></div>
+        <div class="hlabel" id="hLabel">مضيف الروم • فهد</div>
       </div>
 
-      <div class="seats-8-grid" id="seats8Grid"></div>
-      <div class="r-chat-box" id="roomChatBox"></div>
+      <div class="mics" id="micsBox"></div>
+      <div class="chat" id="chatBox"></div>
 
-      <div class="r-bottom-bar">
-        <input class="r-msg-input" id="roomMsgInput" type="text" placeholder="اكتب رسالة في الروم..." onkeydown="if(event.key==='Enter') sendRoomMsg()" />
-        <button class="r-action-btn" id="roomMicBtn" onclick="toggleRoomMic()">🎙️</button>
-        <button class="r-action-btn gift-btn" onclick="sendRoomGift()">🎁</button>
-        <button class="r-action-btn" onclick="sendRoomFire()">🔥</button>
-        <button class="r-action-btn" onclick="sendRoomMsg()">➤</button>
-      </div>
-    </section>
-  </div>
-
-  <div class="modal-backdrop" id="profileModal">
-    <div class="modal-card">
-      <h3>تعديل بيانات حسابك</h3>
-      <input id="profileNameInput" type="text" placeholder="اكتب اسمك" />
-      <div class="modal-btns">
-        <button class="btn-save" onclick="saveProfile()">حفظ</button>
-        <button class="btn-cancel" onclick="closeModals()">إلغاء</button>
+      <div class="bar">
+        <input class="minput" id="msgInput" type="text" placeholder="اكتب رسالة في الروم..." />
+        <button class="abtn" id="micBtn">🎙️</button>
+        <button class="abtn gbtn" id="giftBtn">🎁</button>
+        <button class="abtn" id="fireBtn">🔥</button>
+        <button class="abtn" id="sendBtn">➤</button>
       </div>
     </div>
   </div>
 
-  <div class="modal-backdrop" id="createRoomModal">
-    <div class="modal-card">
-      <h3>إنشاء غرفة صوتية جديدة</h3>
-      <input id="newRoomTitleInput" type="text" placeholder="اسم الغرفة" />
-      <input id="newRoomIdInput" type="text" placeholder="رقم الغرفة" />
-      <div class="modal-btns">
-        <button class="btn-save" onclick="createCustomRoom()">إنشاء ودخول</button>
-        <button class="btn-cancel" onclick="closeModals()">إلغاء</button>
+  <div class="modal" id="profModal">
+    <div class="mcard">
+      <h3>تعديل اسمك</h3>
+      <input id="profInput" type="text" placeholder="اكتب اسمك" />
+      <div class="mbtns">
+        <button class="save" id="saveProfBtn">حفظ</button>
+        <button class="cancel" id="closeProfBtn">إلغاء</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="createModal">
+    <div class="mcard">
+      <h3>إنشاء روم جديدة</h3>
+      <input id="newTitle" type="text" placeholder="اسم الغرفة" />
+      <input id="newId" type="text" placeholder="رقم الغرفة" />
+      <div class="mbtns">
+        <button class="save" id="saveRoomBtn">دخول</button>
+        <button class="cancel" id="closeRoomBtn">إلغاء</button>
       </div>
     </div>
   </div>
 
   <script>
-    const ZEGO_CONFIG = { appId: 1110788264, appSign: "385a7f5c710a552022440be2ee725dca8d01796396ee9927cd661a0ee7b7e610" };
-    let currentUser = "فهد", currentTab = "popular", seats = [], micMuted = false;
-
-    const ROOMS = [
-      { id: "1130318", title: "غرفة الإدارة الرسمية", agency: "وكالة الفهد • Fahd Voice", tag: "مميزة", online: "48.0k", category: "popular", bg: "linear-gradient(135deg, #4b3409 0%, #16130c 60%, #2d1f05 100%)" },
-      { id: "32823", title: "سهرة ترند العرب", agency: "وكالة ترند العرب", tag: "أصدقاء", online: "678.6k", category: "popular", bg: "linear-gradient(135deg, #281b46 0%, #12101a 60%, #3b2410 100%)" },
-      { id: "1087188", title: "قلبي ومفتاحه", agency: "غرفة السهرات والرسائل", tag: "VIP", online: "125.7k", category: "mine", bg: "linear-gradient(135deg, #4a1525 0%, #171014 60%, #3a290b 100%)" },
-      { id: "90500", title: "تحدي المايكات والألعاب", agency: "ساحة التحديات", tag: "لعبة", online: "28.0k", category: "games", bg: "linear-gradient(135deg, #133b2e 0%, #0e1412 60%, #382809 100%)" }
+    var ZEGO = { appId: 1110788264, appSign: "385a7f5c710a552022440be2ee725dca8d01796396ee9927cd661a0ee7b7e610" };
+    var user = "فهد", tab = "popular", seats = [], muted = false;
+    var rooms = [
+      { id: "1130318", title: "غرفة الإدارة الرسمية", agency: "وكالة الفهد", tag: "مميزة", online: "48.0k", cat: "popular", bg: "linear-gradient(135deg,#5a3c09,#17130c)" },
+      { id: "32823", title: "سهرة ترند العرب", agency: "وكالة ترند العرب", tag: "أصدقاء", online: "678.6k", cat: "popular", bg: "linear-gradient(135deg,#2e1d52,#14111c)" },
+      { id: "1087188", title: "قلبي ومفتاحه", agency: "غرفة السهرات", tag: "VIP", online: "125.7k", cat: "mine", bg: "linear-gradient(135deg,#541629,#171014)" },
+      { id: "90500", title: "تحدي المايكات", agency: "ساحة التحديات", tag: "لعبة", online: "28.0k", cat: "games", bg: "linear-gradient(135deg,#144233,#0e1412)" }
     ];
 
-    function renderHome() {
-      document.getElementById("topUserName").textContent = currentUser;
-      document.getElementById("topAvatar").textContent = currentUser.slice(0, 1) || "ف";
-      const grid = document.getElementById("roomsGrid");
-      const filtered = currentTab === "popular" ? ROOMS : ROOMS.filter((r) => r.category === currentTab);
-      grid.innerHTML = "";
-      filtered.forEach((room) => {
-        const card = document.createElement("div");
-        card.className = "room-card";
-        card.onclick = () => openRoom(room);
-        card.innerHTML = `<div class="room-thumb" style="background-image:${room.bg}"><span class="thumb-tag">${room.tag}</span><div class="thumb-bottom"><span>🎧 ${room.online}</span><span>#${room.id}</span></div></div><div class="room-card-body"><div class="room-card-title">${escapeHtml(room.title)}</div><div class="room-card-agency">${escapeHtml(room.agency)}</div></div>`;
-        grid.appendChild(card);
+    function drawHome() {
+      document.getElementById("unameTxt").textContent = user;
+      document.getElementById("avTxt").textContent = (user[0] || "ف");
+      var list = (tab === "popular") ? rooms : rooms.filter(function(r){ return r.cat === tab; });
+      var g = document.getElementById("roomsGrid");
+      g.innerHTML = "";
+      list.forEach(function(r) {
+        var c = document.createElement("div");
+        c.className = "rcard";
+        c.innerHTML = '<div class="rthumb" style="background:' + r.bg + '"><span class="rbadge">' + r.tag + '</span><div class="rfoot"><span>🎧 ' + r.online + '</span><span>#' + r.id + '</span></div></div><div class="rbody"><div class="rtitle">' + r.title + '</div><div class="ragency">' + r.agency + '</div></div>';
+        c.onclick = function() { enterRoom(r); };
+        g.appendChild(c);
       });
     }
 
-    function switchTab(tab, el) {
-      currentTab = tab;
-      document.querySelectorAll(".seg-tab").forEach((b) => b.classList.remove("active"));
-      if (el) el.classList.add("active");
-      renderHome();
+    function enterRoom(r) {
+      muted = false;
+      seats = [];
+      for (var i = 1; i <= 8; i++) seats.push({ n: i, u: null, p: 0 });
+      document.getElementById("homeView").style.display = "none";
+      document.getElementById("roomView").style.display = "flex";
+      document.getElementById("rName").textContent = r.title;
+      document.getElementById("rMeta").textContent = "ID: " + r.id + " • Zego " + ZEGO.appId;
+      document.getElementById("hLabel").textContent = "مضيف الروم • " + user;
+      document.getElementById("chatBox").innerHTML = "";
+      document.getElementById("micBtn").textContent = "🎙️";
+      drawMics();
+      sysMsg("مرحباً " + user + " في " + r.title);
     }
 
-    function setNav(btn, tab) {
-      document.querySelectorAll(".nav-item").forEach((n) => n.classList.remove("active"));
-      btn.classList.add("active");
-      switchTab(tab, document.querySelector(`.seg-tab[data-tab="${tab}"]`));
-    }
-
-    function openRoom(room) {
-      micMuted = false;
-      seats = Array.from({ length: 8 }, (_, idx) => ({ num: idx + 1, user: null, pts: 0 }));
-      document.getElementById("homeScreen").style.display = "none";
-      document.querySelector(".bottom-nav").style.display = "none";
-      document.getElementById("roomScreen").style.display = "flex";
-      document.getElementById("activeRoomName").textContent = room.title;
-      document.getElementById("activeRoomMeta").textContent = `ID: ${room.id} • Zego ${ZEGO_CONFIG.appId}`;
-      document.getElementById("activeRoomOnline").textContent = `${room.online} متصل`;
-      document.getElementById("hostLabel").textContent = `مضيف الروم • ${currentUser}`;
-      document.getElementById("roomChatBox").innerHTML = "";
-      renderSeats8();
-      updateRoomMicIcon();
-      addRoomSysMsg(`مرحباً ${currentUser} في ${room.title}`);
-    }
-
-    function leaveRoom() {
-      document.getElementById("roomScreen").style.display = "none";
-      document.getElementById("homeScreen").style.display = "flex";
-      document.querySelector(".bottom-nav").style.display = "grid";
-      renderHome();
-    }
-
-    function renderSeats8() {
-      const grid = document.getElementById("seats8Grid");
-      grid.innerHTML = "";
-      seats.forEach((s, idx) => {
-        const slot = document.createElement("div");
-        slot.className = "mic-slot";
-        slot.onclick = () => onSeatClick(idx);
-        slot.innerHTML = `<div class="mic-circle-wrap"><div class="mic-circle">${s.user ? s.user.slice(0, 1) : "🎙️"}</div><span class="mic-num">${s.num}</span></div><div class="mic-name">${escapeHtml(s.user || `مايك ${s.num}`)}</div><div class="mic-pts">${s.user ? `💎 ${s.pts}` : "متاح"}</div>`;
-        grid.appendChild(slot);
+    function drawMics() {
+      var box = document.getElementById("micsBox");
+      box.innerHTML = "";
+      seats.forEach(function(s, idx) {
+        var el = document.createElement("div");
+        el.className = "mic";
+        el.innerHTML = '<div class="mring"><div class="min">' + (s.u ? s.u[0] : "🎙️") + '</div><span class="mnum">' + s.n + '</span></div><div class="mname">' + (s.u || ("مايك " + s.n)) + '</div><div class="mpts">' + (s.u ? ("💎 " + s.p) : "متاح") + '</div>';
+        el.onclick = function() {
+          if (s.u === user) { s.u = null; sysMsg(user + " نزل من مايك " + s.n); }
+          else {
+            seats.forEach(function(x){ if (x.u === user) x.u = null; });
+            s.u = user;
+            sysMsg(user + " صعد على مايك " + s.n);
+          }
+          drawMics();
+        };
+        box.appendChild(el);
       });
     }
 
-    function onSeatClick(idx) {
-      const target = seats[idx];
-      if (target.user === currentUser) {
-        target.user = null;
-        addRoomSysMsg(`${currentUser} نزل من مايك ${target.num}`);
-      } else {
-        seats.forEach((item) => { if (item.user === currentUser) item.user = null; });
-        target.user = currentUser;
-        addRoomSysMsg(`${currentUser} صعد على مايك ${target.num}`);
-      }
-      renderSeats8();
+    function sysMsg(t) {
+      var b = document.getElementById("chatBox");
+      var d = document.createElement("div");
+      d.className = "sys";
+      d.textContent = t;
+      b.appendChild(d);
+      b.scrollTop = b.scrollHeight;
     }
 
-    function toggleRoomMi
+    function sendMsg() {
+      var inp = document.getElementById("msgInput");
+      var val = inp.value.trim();
+      if (!val) return;
+      var b = document.getElementById("chatBox");
+      var d = document.createElement("div");
+      d.innerHTML = '<strong style="color:#eab938">' + user + ':</strong> ' + val;
+      b.appendChild(d);
+      b.scrollTop = b.scrollHeight;
+      inp.value = "";
+    }
+
+    document.querySelectorAll(".tab").forEach(function(b) {
+      b.onclick = function() {
+        tab = b.getAttribute("data-t");
+        document.querySelectorAll(".tab").forEach(function(x){ x.classList.remove("active"); });
+        b.classList.add("active");
+        drawHome();
+      };
+    });
+
+    document.querySelectorAll(".nbtn").forEach(function(b) {
+      b.onclick = function() {
+        var act = b.getAttribute("data-action");
+        var t = b.getAttribute("data-t");
+        if (act === "room") return enterRoom(rooms[0]);
+        if (act === "profile") return openProf();
+        if (t) {
+          tab = t;
+          document.querySelectorAll(".tab").forEach(function(x){ x.classList.toggle("active", x.getAttribute("data-t") === t); });
+          drawHome();
+        }
+      };
+    });
+
+    function openProf() {
+      document.getElementById("profInput").value = user;
+      document.getElementById("profModal").style.display = "flex";
+    }
+
+    document.getElementById("profileChip").onclick = openProf;
+    document.getElementById("editBtn").onclick = openProf;
+    document.getElementById("trophyBtn").onclick = function(){ enterRoom(rooms[0]); };
+    document.getElementById("quickBanner").onclick = function(){ enterRoom(rooms[0]); };
+    document.getElementById("exitBtn").onclick = function() {
+      document.getElementById("roomView").style.display = "none";
+      document.getElementById("homeView").style.display = "flex";
+      drawHome();
+    };
+    document.getElementById("sendBtn").onclick = sendMsg;
+    document.getElementById("msgInput").onkeydown = function(e){ if (e.key === "Enter") sendMsg(); };
+    document.getElementById("micBtn").onclick = function() {
+      muted = !muted;
+      this.textContent = muted ? "🔇" : "🎙️";
+      sysMsg(muted ? (user + " كتم المايك") : (user + " فتح المايك"));
+    };
+    document.getElementById("giftBtn").onclick = function() {
+      var st = seats.find(function(x){ return x.u; });
+      if (st) st.p += 500;
+      drawMics();
+      sysMsg("🎁 " + user + " أرسل هدية ذهبية!");
+    };
+    document.getElementById("fireBtn").onclick = function(){ sysMsg("🔥 " + user + " يتفاعل بحماس!"); };
+    document.getElementById("saveProfBtn").onclick = function() {
+      var v = document.getElementById("profInput").value.trim();
+      if (v) user = v;
+      document.getElementById("profModal").style.display = "none";
+      drawHome();
+    };
+    document.getElementById("closeProfBtn").onclick = function(){ document.getElementById("profModal").style.display = "none"; };
+    document.getElementById("openCreateBtn").onclick = function() {
+      document.getElementById("newTitle").value = "";
+      document.getElementById("newId").value = "";
+      document.getElementById("createModal").style.display = "flex";
+    };
+    document.getElementById("closeRoomBtn").onclick = function(){ document.getElementById("createModal").style.display = "none"; };
+    document.getElementById("saveRoomBtn").onclick = function() {
+      var t = document.getElementById("newTitle").value.trim() || "روم جديدة";
+      var id = document.getElementById("newId").value.trim() || "1130318";
+      var nr = { id: id, title: t, agency: user, tag: "جديدة", online: "1", cat: "mine", bg: "linear-gradient(135deg,#5a3c09,#17130c)" };
+      rooms.unshift(nr);
+      document.getElementById("createModal").style.display = "none";
+      enterRoom(nr);
+    };
+
+    drawHome();
+  </script>
+</body>
+</html>
