@@ -45,6 +45,24 @@ jobs:
           npm install @capacitor/core@6 @capacitor/cli@6 @capacitor/android@6
           npx cap init "Fahd Voice" "com.fahd.voice" --web-dir=www
           npx cap add android
+
+      - name: Add microphone permissions to AndroidManifest
+        run: |
+          MANIFEST="android/app/src/main/AndroidManifest.xml"
+          node -e '
+            const fs = require("fs");
+            let xml = fs.readFileSync(process.argv[1], "utf8");
+            const perms = [
+              "<uses-permission android:name=\"android.permission.INTERNET\" />",
+              "<uses-permission android:name=\"android.permission.RECORD_AUDIO\" />",
+              "<uses-permission android:name=\"android.permission.MODIFY_AUDIO_SETTINGS\" />",
+              "<uses-feature android:name=\"android.hardware.microphone\" android:required=\"false\" />"
+            ].join("\n    ");
+            if (!xml.includes("android.permission.RECORD_AUDIO")) {
+              xml = xml.replace("<application", perms + "\n\n    <application");
+            }
+            fs.writeFileSync(process.argv[1], xml, "utf8");
+          ' "$MANIFEST"
           npx cap sync android
 
       - name: Build Debug APK
