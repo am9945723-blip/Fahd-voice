@@ -1,61 +1,794 @@
-name: Build Fahd Voice APK
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fahd Voice</title>
+  <style>
+    :root {
+      --bg: #090807;
+      --surface: #141210;
+      --surface-2: #1d1914;
+      --gold: #eab938;
+      --gold-light: #ffe38e;
+      --gold-dark: #9a6d10;
+      --gold-border: rgba(234, 185, 56, 0.45);
+      --text: #fffdf7;
+      --muted: #b7ad96;
+      --lock: #c94a5a;
+    }
 
-on:
-  workflow_dispatch:
-  push:
-    branches:
-      - main
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 50% 0%, rgba(234, 185, 56, 0.24), transparent 46%),
+        linear-gradient(180deg, #161108 0%, var(--bg) 42%, #060605 100%);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+    }
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
+    .phone-frame {
+      width: 100%;
+      max-width: 480px;
+      min-height: 100vh;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
 
-      - name: Setup Java 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: "temurin"
-          java-version: "17"
+    /* ================= الشاشة الرئيسية ================= */
+    .home-screen {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      padding-bottom: 72px;
+      background:
+        radial-gradient(circle at 50% 4%, rgba(255, 215, 110, 0.28), transparent 40%),
+        linear-gradient(180deg, #241908 0%, #120f0a 24%, #090807 100%);
+    }
 
-      - name: Prepare Android SDK
-        run: |
-          mkdir -p "$HOME/android-sdk/cmdline-tools"
-          curl -sSL https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -o cmdline-tools.zip
-          unzip -q cmdline-tools.zip -d "$HOME/android-sdk/cmdline-tools"
-          mv "$HOME/android-sdk/cmdline-tools/cmdline-tools" "$HOME/android-sdk/cmdline-tools/latest"
-          rm -f cmdline-tools.zip
-          echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
-          echo "ANDROID_SDK_ROOT=$HOME/android-sdk" >> $GITHUB_ENV
-          echo "$HOME/android-sdk/cmdline-tools/latest/bin:$HOME/android-sdk/platform-tools" >> $GITHUB_PATH
-          yes | "$HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager" --sdk_root="$HOME/android-sdk" --licenses >/dev/null
-          "$HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager" --sdk_root="$HOME/android-sdk" "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      gap: 8px;
+    }
 
-      - name: Create Capacitor Android project
-        run: |
-          mkdir -p www
-          cp index.html www/index.html
-          npm init -y
-          npm install @capacitor/core@6 @capacitor/cli@6 @capacitor/android@6
-          npx cap init "Fahd Voice" "com.fahd.voice" --web-dir=www
-          npx cap add android
-          npx cap sync android
+    .user-chip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(28, 22, 12, 0.88);
+      border: 1px solid var(--gold-border);
+      border-radius: 999px;
+      padding: 4px 10px 4px 6px;
+    }
 
-      - name: Build Debug APK
-        run: |
-          cd android
-          chmod +x gradlew
-          ./gradlew assembleDebug
+    .avatar-ring {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      padding: 2px;
+      background: linear-gradient(135deg, var(--gold-light), var(--gold-dark));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      color: #161106;
+      font-size: 13px;
+    }
 
-      - name: Upload APK artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: FahdVoice-APK
-          path: android/app/build/outputs/apk/debug/app-debug.apk
-          
+    .user-info .u-name {
+      font-size: 12.5px;
+      font-weight: 800;
+      color: var(--gold-light);
+    }
+
+    .user-info .u-id {
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .quick-icons {
+      display: flex;
+      gap: 6px;
+    }
+
+    .icon-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 1px solid var(--gold-border);
+      background: rgba(24, 20, 14, 0.88);
+      color: var(--gold-light);
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .banner-gold {
+      margin: 4px 12px 8px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: linear-gradient(115deg, #5e3f09 0%, #9b6c14 48%, #472e05 100%);
+      border: 1.5px solid var(--gold-light);
+      box-shadow: 0 8px 22px rgba(234, 185, 56, 0.22);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .banner-gold .b-title {
+      font-size: 14px;
+      font-weight: 900;
+      color: #fff6d1;
+    }
+
+    .banner-gold .b-sub {
+      font-size: 11px;
+      color: #ffe89e;
+      margin-top: 2px;
+    }
+
+    .banner-badge {
+      background: linear-gradient(135deg, #fff0b3, #d99f1c);
+      color: #1a1203;
+      font-weight: 900;
+      font-size: 11px;
+      padding: 6px 10px;
+      border-radius: 12px;
+      white-space: nowrap;
+    }
+
+    .ticker-bar {
+      margin: 0 12px 10px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(234, 185, 56, 0.22), rgba(234, 185, 56, 0.08));
+      border: 1px solid var(--gold-border);
+      font-size: 11.5px;
+      color: var(--gold-light);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .tabs-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 2px 12px 10px;
+      gap: 8px;
+    }
+
+    .seg-tabs {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .seg-tab {
+      border: 1px solid #352d1d;
+      background: #17140f;
+      color: var(--muted);
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 12.5px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .seg-tab.active {
+      background: linear-gradient(135deg, var(--gold-light), var(--gold));
+      color: #161106;
+      border-color: var(--gold-light);
+    }
+
+    .create-room-mini {
+      border: 1px solid var(--gold-border);
+      background: rgba(234, 185, 56, 0.14);
+      color: var(--gold-light);
+      padding: 6px 11px;
+      border-radius: 999px;
+      font-size: 11.5px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .rooms-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      padding: 0 12px;
+    }
+
+    .room-card {
+      border-radius: 16px;
+      overflow: hidden;
+      background: var(--surface);
+      border: 1px solid var(--gold-border);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.45);
+    }
+
+    .room-thumb {
+      height: 112px;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      background-size: cover;
+      background-position: center;
+    }
+
+    .thumb-tag {
+      align-self: flex-start;
+      background: rgba(14, 12, 9, 0.78);
+      border: 1px solid var(--gold-border);
+      color: var(--gold-light);
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+
+    .thumb-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      font-weight: 800;
+      color: #fff;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
+    }
+
+    .room-card-body {
+      padding: 8px 10px;
+      background: linear-gradient(180deg, #1b1711, #110f0c);
+    }
+
+    .room-card-title {
+      font-size: 12.5px;
+      font-weight: 800;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .room-card-agency {
+      font-size: 10.5px;
+      color: var(--gold);
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 480px;
+      height: 62px;
+      background: linear-gradient(180deg, #1a150c, #0c0a07);
+      border-top: 1px solid var(--gold-border);
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      align-items: center;
+      z-index: 20;
+    }
+
+    .nav-item {
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      font-size: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      padding: 4px 2px;
+    }
+
+    .nav-item .n-ico {
+      font-size: 17px;
+    }
+
+    .nav-item.active {
+      color: var(--gold-light);
+    }
+
+    /* ================= شاشة الروم الصوتية ================= */
+    .room-screen {
+      display: none;
+      flex-direction: column;
+      min-height: 100vh;
+      padding: 10px;
+      justify-content: space-between;
+      gap: 10px;
+      background:
+        radial-gradient(circle at 50% 22%, rgba(234, 185, 56, 0.16), transparent 52%),
+        linear-gradient(180deg, rgba(16, 13, 8, 0.92) 0%, rgba(10, 9, 8, 0.96) 100%);
+    }
+
+    .r-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      background: rgba(20, 17, 12, 0.85);
+      border: 1px solid var(--gold-border);
+      border-radius: 16px;
+      padding: 8px 10px;
+    }
+
+    .r-title-box {
+      min-width: 0;
+    }
+
+    .r-name {
+      font-size: 13.5px;
+      font-weight: 900;
+      color: var(--gold-light);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .r-meta {
+      font-size: 10.5px;
+      color: var(--muted);
+    }
+
+    .r-top-btns {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .r-pill {
+      background: rgba(234, 185, 56, 0.14);
+      border: 1px solid var(--gold-border);
+      color: var(--gold-light);
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 999px;
+    }
+
+    .r-leave {
+      background: rgba(201, 74, 90, 0.22);
+      border: 1px solid rgba(201, 74, 90, 0.6);
+      color: #ff9ca8;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 5px 9px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .host-stage {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 2px 0;
+    }
+
+    .host-throne {
+      width: 66px;
+      height: 66px;
+      border-radius: 50%;
+      padding: 3px;
+      background: linear-gradient(135deg, #fff0ad, var(--gold), #8c5f09);
+      box-shadow: 0 0 22px rgba(234, 185, 56, 0.35);
+    }
+
+    .host-inner {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: #1a140b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+    }
+
+    .host-label {
+      margin-top: 4px;
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--gold-light);
+      background: rgba(22, 18, 11, 0.85);
+      border: 1px solid var(--gold-border);
+      padding: 2px 10px;
+      border-radius: 999px;
+    }
+
+    .seats-8-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px 6px;
+    }
+
+    .mic-slot {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .mic-circle-wrap {
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      padding: 2px;
+      background: linear-gradient(135deg, var(--gold-light), var(--gold-dark));
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .mic-circle-wrap.locked {
+      background: linear-gradient(135deg, #7a3640, #3b191e);
+    }
+
+    .mic-circle {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: #14110c;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--gold-light);
+    }
+
+    .mic-num {
+      position: absolute;
+      bottom: -3px;
+      background: #1f1a10;
+      border: 1px solid var(--gold-border);
+      color: var(--gold-light);
+      font-size: 9px;
+      font-weight: 800;
+      padding: 0 5px;
+      border-radius: 999px;
+    }
+
+    .mic-name {
+      margin-top: 5px;
+      font-size: 10.5px;
+      color: var(--text);
+      font-weight: 700;
+      max-width: 100%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .mic-pts {
+      font-size: 9.5px;
+      color: var(--gold);
+    }
+
+    .r-chat-box {
+      background: rgba(14, 12, 9, 0.72);
+      border: 1px solid rgba(234, 185, 56, 0.25);
+      border-radius: 14px;
+      padding: 8px 10px;
+      height: 132px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      font-size: 12px;
+    }
+
+    .r-msg-sys {
+      color: var(--gold-light);
+      font-size: 11px;
+    }
+
+    .r-msg-user strong {
+      color: var(--gold);
+      margin-left: 4px;
+    }
+
+    .r-bottom-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .r-msg-input {
+      flex: 1;
+      min-width: 0;
+      padding: 9px 11px;
+      border-radius: 999px;
+      border: 1px solid var(--gold-border);
+      background: rgba(20, 17, 12, 0.92);
+      color: var(--text);
+      font-size: 12px;
+      outline: none;
+    }
+
+    .r-action-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: 1px solid var(--gold-border);
+      background: rgba(26, 21, 13, 0.92);
+      color: var(--gold-light);
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .r-action-btn.gift-btn {
+      background: linear-gradient(135deg, var(--gold-light), var(--gold));
+      color: #161106;
+      font-weight: 800;
+    }
+
+    /* نافذة تعديل الاسم / إنشاء روم */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.72);
+      z-index: 40;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal-card {
+      width: 100%;
+      max-width: 380px;
+      background: #16130d;
+      border: 1px solid var(--gold-border);
+      border-radius: 18px;
+      padding: 16px;
+    }
+
+    .modal-card h3 {
+      margin: 0 0 10px;
+      color: var(--gold-light);
+      font-size: 15px;
+    }
+
+    .modal-card input {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 11px;
+      border: 1px solid #352d1d;
+      background: #0d0b08;
+      color: var(--text);
+      margin-bottom: 10px;
+      font-size: 13px;
+    }
+
+    .modal-btns {
+      display: flex;
+      gap: 8px;
+    }
+
+    .modal-btns button {
+      flex: 1;
+      padding: 10px;
+      border-radius: 11px;
+      border: none;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .btn-save {
+      background: linear-gradient(135deg, var(--gold-light), var(--gold));
+      color: #161106;
+    }
+
+    .btn-cancel {
+      background: #252017;
+      color: var(--text);
+    }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <!-- الرئيسية -->
+    <section class="home-screen" id="homeScreen">
+      <div class="top-bar">
+        <div class="user-chip" onclick="openProfileModal()">
+          <div class="avatar-ring" id="topAvatar">ف</div>
+          <div class="user-info">
+            <div class="u-name" id="topUserName">الوكيل فهد</div>
+            <div class="u-id" id="topUserId">ID: 1130318</div>
+          </div>
+        </div>
+        <div class="quick-icons">
+          <button class="icon-btn" title="تعديل الاسم" onclick="openProfileModal()">✏️</button>
+          <button class="icon-btn" title="الفعاليات" onclick="openRoom(ROOMS[0])">🏆</button>
+        </div>
+      </div>
+
+      <div class="banner-gold" onclick="openRoom(ROOMS[0])">
+        <div>
+          <div class="b-title">سهرة وكالات Fahd Voice الذهبية</div>
+          <div class="b-sub">غرف صوتية • مايكات مفتوحة • هدايا فورية</div>
+        </div>
+        <div class="banner-badge">دخول سريع</div>
+      </div>
+
+      <div class="ticker-bar" id="tickerBar">
+        ✨ توصيات مميزة: وكالة الفهد وترند العرب — اضغط على أي غرفة للدخول مباشرة ✨
+      </div>
+
+      <div class="tabs-row">
+        <div class="seg-tabs">
+          <button class="seg-tab active" data-tab="popular" onclick="switchTab('popular', this)">شائع</button>
+          <button class="seg-tab" data-tab="mine" onclick="switchTab('mine', this)">غرفي</button>
+          <button class="seg-tab" data-tab="games" onclick="switchTab('games', this)">لعبة</button>
+        </div>
+        <button class="create-room-mini" onclick="openCreateRoomModal()">+ إنشاء روم</button>
+      </div>
+
+      <div class="rooms-grid" id="roomsGrid"></div>
+
+      <nav class="bottom-nav">
+        <button class="nav-item active" onclick="setNav(this, 'popular')">
+          <span class="n-ico">🏠</span>
+          <span>غرف</span>
+        </button>
+        <button class="nav-item" onclick="setNav(this, 'games')">
+          <span class="n-ico">🎮</span>
+          <span>لعبة</span>
+        </button>
+        <button class="nav-item" onclick="setNav(this, 'popular')">
+          <span class="n-ico">🪐</span>
+          <span>اكتشاف</span>
+        </button>
+        <button class="nav-item" onclick="openRoom(ROOMS[0])">
+          <span class="n-ico">🔔</span>
+          <span>الرسائل</span>
+        </button>
+        <button class="nav-item" onclick="openProfileModal()">
+          <span class="n-ico">👑</span>
+          <span>حسابي</span>
+        </button>
+      </nav>
+    </section>
+
+    <!-- داخل الروم -->
+    <section class="room-screen" id="roomScreen">
+      <div class="r-top">
+        <div class="r-title-box">
+          <div class="r-name" id="activeRoomName">غرفة الإدارة</div>
+          <div class="r-meta" id="activeRoomMeta">ID: 1130318</div>
+        </div>
+        <div class="r-top-btns">
+          <span class="r-pill" id="activeRoomOnline">24 متصل</span>
+          <button class="r-leave" onclick="leaveRoom()">خروج</button>
+        </div>
+      </div>
+
+      <div class="host-stage">
+        <div class="host-throne">
+          <div class="host-inner">👑</div>
+        </div>
+        <div class="host-label" id="hostLabel">مضيف الروم • فهد</div>
+      </div>
+
+      <div class="seats-8-grid" id="seats8Grid"></div>
+
+      <div class="r-chat-box" id="roomChatBox"></div>
+
+      <div class="r-bottom-bar">
+        <input
+          class="r-msg-input"
+          id="roomMsgInput"
+          type="text"
+          placeholder="اكتب رسالة في الروم..."
+          onkeydown="if(event.key==='Enter') sendRoomMsg()"
+        />
+        <button class="r-action-btn" id="roomMicBtn" title="المايك" onclick="toggleRoomMic()">🎙️</button>
+        <button class="r-action-btn gift-btn" title="إرسال هدية" onclick="sendRoomGift()">🎁</button>
+        <button class="r-action-btn" title="تفاعل" onclick="sendRoomFire()">🔥</button>
+        <button class="r-action-btn" title="إرسال" onclick="sendRoomMsg()">➤</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- نافذة تعديل الاسم -->
+  <div class="modal-backdrop" id="profileModal">
+    <div class="modal-card">
+      <h3>تعديل بيانات حسابك</h3>
+      <input id="profileNameInput" type="text" placeholder="اكتب اسمك" />
+      <div class="modal-btns">
+        <button class="btn-save" onclick="saveProfile()">حفظ</button>
+        <button class="btn-cancel" onclick="closeModals()">إلغاء</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- نافذة إنشاء روم جديدة -->
+  <div class="modal-backdrop" id="createRoomModal">
+    <div class="modal-card">
+      <h3>إنشاء غرفة صوتية جديدة</h3>
+      <input id="newRoomTitleInput" type="text" placeholder="اسم الغرفة (مثال: سهرة وكالة الفهد)" />
+      <input id="newRoomIdInput" type="text" placeholder="رقم الغرفة (مثال: 1130318)" />
+      <div class="modal-btns">
+        <button class="btn-save" onclick="createCustomRoom()">إنشاء ودخول</button>
+        <button class="btn-cancel" onclick="closeModals()">إلغاء</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const ZEGO_CONFIG = {
+      appId: 1110788264,
+      appSign: "385a7f5c710a552022440be2ee725dca8d01796396ee9927cd661a0ee7b7e610"
+    };
+
+    let currentUser = "فهد";
+    let currentTab = "popular";
+    let activeRoom = null;
+    let seats = [];
+    let micMuted = false;
+
+    const ROOMS = [
+      {
+        id: "1130318",
+        title: "غرفة الإدارة الرسمية",
+        agency: "وكالة الفهد • Fahd Voice",
+        tag: "مميزة",
+        online: "48.0k",
+        category: "popular",
+        bg: "linear-gradient(135deg, #4b3409 0%, #16130c 60%, #2d1f05 100%)"
+      },
+      {
+        id: "32823",
+        title: "سهرة ترند العرب",
+        agency: "وكالة ترند العرب",
+        tag: "أصدقاء",
+        online: "678.6k",
+        category: "popular",
+        bg: "linear-gradient(135deg, #281b46 0%, #12101a 60%, #3b2410 100%)"
+      },
+      {
+        id: "1087188",
+        title: "قلبي ومفتاحه",
+        agency: "غرفة السهرات والرسائل",
+        tag: "VIP",
+        online: "125.7k",
+        category: "mine",
+        bg: "linear-gradient(135deg, #4a1525 0%,
