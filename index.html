@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Fahd Voice</title>
-  <script src="https://unpkg.com/zego-express-engine-webrtc/light/index.js"></script>
   <style>
     * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
     body {
@@ -13,114 +12,173 @@
       display: flex; justify-content: center;
     }
     .app { width: 100%; max-width: 480px; min-height: 100vh; display: flex; flex-direction: column; position: relative; }
-    .home { display: flex; flex-direction: column; padding-bottom: 74px; }
-    .top { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; }
+
+    /* شاشة تسجيل الدخول */
+    .auth-screen {
+      margin: auto 12px; padding: 20px 16px; border-radius: 20px;
+      background: linear-gradient(165deg, #1b160d, #0f0d09);
+      border: 1px solid rgba(234,185,56,0.5);
+      box-shadow: 0 14px 36px rgba(0,0,0,0.65);
+    }
+    .brand-tag {
+      display: inline-block; padding: 4px 10px; border-radius: 999px;
+      background: rgba(234,185,56,0.16); border: 1px solid rgba(234,185,56,0.45);
+      color: #ffe38e; font-size: 11px; font-weight: 800; margin-bottom: 8px;
+    }
+    .auth-title { margin: 0; font-size: 24px; color: #ffe38e; font-weight: 900; }
+    .auth-sub { margin: 6px 0 16px; font-size: 12px; color: #b7ad96; line-height: 1.5; }
+    .lbl { display: block; font-size: 11.5px; color: #eab938; font-weight: 700; margin-bottom: 5px; }
+    .inp {
+      width: 100%; padding: 11px 12px; border-radius: 12px;
+      border: 1px solid #352d1d; background: #0a0907; color: #fff;
+      font-size: 13px; margin-bottom: 12px; outline: none;
+    }
+    .inp:focus { border-color: #eab938; }
+    .btn-gold {
+      width: 100%; padding: 12px; border: none; border-radius: 12px;
+      background: linear-gradient(135deg, #ffe38e, #eab938, #9a6d10);
+      color: #161106; font-size: 14px; font-weight: 900; cursor: pointer;
+    }
+    .divider { text-align: center; margin: 12px 0; font-size: 11px; color: #8f8570; }
+    .btn-google {
+      width: 100%; padding: 11px; border-radius: 12px;
+      border: 1px solid rgba(234,185,56,0.45); background: #17130c;
+      color: #ffe38e; font-size: 13px; font-weight: 800; cursor: pointer;
+    }
+
+    /* الشاشة الرئيسية */
+    .home { display: none; flex-direction: column; padding-bottom: 74px; }
+    .top { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; gap: 8px; }
     .chip { display: flex; align-items: center; gap: 8px; background: #1a150c; border: 1px solid rgba(234,185,56,0.45); border-radius: 999px; padding: 5px 10px 5px 6px; cursor: pointer; }
     .av { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg,#ffe38e,#9a6d10); color: #161106; font-weight: 900; display: flex; align-items: center; justify-content: center; }
-    .uname { font-size: 13px; font-weight: 800; color: #ffe38e; }
+    .uname { font-size: 12.5px; font-weight: 800; color: #ffe38e; }
     .uid { font-size: 10px; color: #b7ad96; }
     .top-btns { display: flex; gap: 6px; }
-    .ibtn { width: 34px; height: 34px; border-radius: 50%; border: 1px solid rgba(234,185,56,0.45); background: #19150e; color: #ffe38e; font-size: 14px; cursor: pointer; }
+    .ibtn { width: 34px; height: 34px; border-radius: 50%; border: 1px solid rgba(234,185,56,0.45); background: #19150e; color: #ffe38e; font-size: 13px; cursor: pointer; }
+
     .banner { margin: 4px 12px 8px; padding: 12px 14px; border-radius: 16px; background: linear-gradient(120deg,#5e3f09,#9b6c14,#472e05); border: 1.5px solid #ffe38e; display: flex; justify-content: space-between; align-items: center; gap: 8px; cursor: pointer; }
-    .btitle { font-size: 14px; font-weight: 900; color: #fff6d1; }
+    .btitle { font-size: 13.5px; font-weight: 900; color: #fff6d1; }
     .bsub { font-size: 11px; color: #ffe89e; margin-top: 2px; }
     .btag { background: linear-gradient(135deg,#fff0b3,#d99f1c); color: #1a1203; font-weight: 900; font-size: 11px; padding: 6px 10px; border-radius: 12px; white-space: nowrap; }
-    .ticker { margin: 0 12px 10px; padding: 8px 12px; border-radius: 999px; background: rgba(234,185,56,0.14); border: 1px solid rgba(234,185,56,0.4); font-size: 11.5px; color: #ffe38e; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .tabs { display: flex; justify-content: space-between; align-items: center; padding: 0 12px 10px; gap: 6px; }
-    .tab-group { display: flex; gap: 6px; }
-    .tab { border: 1px solid #352d1d; background: #17140f; color: #b7ad96; padding: 6px 13px; border-radius: 999px; font-size: 12px; font-weight: 700; cursor: pointer; }
+
+    .tabs { display: flex; justify-content: space-between; align-items: center; padding: 4px 12px 10px; gap: 6px; flex-wrap: wrap; }
+    .tab-group { display: flex; gap: 6px; flex-wrap: wrap; }
+    .tab { border: 1px solid #352d1d; background: #17140f; color: #b7ad96; padding: 6px 12px; border-radius: 999px; font-size: 11.5px; font-weight: 700; cursor: pointer; }
     .tab.active { background: linear-gradient(135deg,#ffe38e,#eab938); color: #161106; border-color: #ffe38e; }
-    .add-btn { border: 1px solid rgba(234,185,56,0.5); background: rgba(234,185,56,0.15); color: #ffe38e; padding: 6px 10px; border-radius: 999px; font-size: 11.5px; font-weight: 800; cursor: pointer; }
-    .grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; padding: 0 12px; }
+    .add-btn { border: 1px solid rgba(234,185,56,0.5); background: rgba(234,185,56,0.15); color: #ffe38e; padding: 6px 10px; border-radius: 999px; font-size: 11px; font-weight: 800; cursor: pointer; }
+
+    .section-box { padding: 0 12px; display: flex; flex-direction: column; gap: 10px; }
+    .grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; }
     .rcard { border-radius: 15px; overflow: hidden; background: #141210; border: 1px solid rgba(234,185,56,0.45); cursor: pointer; }
-    .rthumb { height: 104px; padding: 8px; display: flex; flex-direction: column; justify-content: space-between; }
+    .rthumb { height: 96px; padding: 8px; display: flex; flex-direction: column; justify-content: space-between; }
     .rbadge { align-self: flex-start; background: rgba(10,9,7,0.75); border: 1px solid rgba(234,185,56,0.45); color: #ffe38e; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 999px; }
     .rfoot { display: flex; justify-content: space-between; font-size: 11px; font-weight: 800; }
     .rbody { padding: 8px 10px; background: #18140e; }
-    .rtitle { font-size: 12.5px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .rtitle { font-size: 12px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .ragency { font-size: 10.5px; color: #eab938; margin-top: 2px; }
-    .nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; height: 62px; background: #120f09; border-top: 1px solid rgba(234,185,56,0.45); display: grid; grid-template-columns: repeat(5,1fr); align-items: center; z-index: 20; }
-    .nbtn { border: none; background: none; color: #b7ad96; display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 10px; font-weight: 700; cursor: pointer; }
-    .nbtn.active { color: #ffe38e; }
+
+    .card-box {
+      background: #15120c; border: 1px solid rgba(234,185,56,0.4);
+      border-radius: 15px; padding: 12px;
+    }
+    .card-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 6px; }
+    .card-title { font-size: 13px; font-weight: 900; color: #ffe38e; }
+    .pill-gold { background: rgba(234,185,56,0.16); border: 1px solid rgba(234,185,56,0.45); color: #ffe38e; font-size: 10.5px; font-weight: 800; padding: 3px 8px; border-radius: 999px; }
+    .muted-txt { font-size: 11px; color: #b7ad96; line-height: 1.5; }
+    .progress-wrap { width: 100%; height: 10px; border-radius: 999px; background: #262015; overflow: hidden; margin: 8px 0; }
+    .progress-bar { height: 100%; background: linear-gradient(90deg, #eab938, #ffe38e); width: 0%; transition: width 0.25s ease; }
+    .btn-sm {
+      padding: 6px 10px; border-radius: 10px; border: 1px solid rgba(234,185,56,0.45);
+      background: #1f190f; color: #ffe38e; font-size: 11px; font-weight: 800; cursor: pointer;
+    }
+    .btn-sm.active-join { background: linear-gradient(135deg,#ffe38e,#eab938); color: #161106; }
+
+    /* شاشة الروم */
     .room { display: none; flex-direction: column; min-height: 100vh; padding: 10px; justify-content: space-between; gap: 8px; }
     .rtop { display: flex; justify-content: space-between; align-items: center; gap: 8px; background: #17130c; border: 1px solid rgba(234,185,56,0.45); border-radius: 15px; padding: 8px 10px; }
-    .rname { font-size: 13.5px; font-weight: 900; color: #ffe38e; }
-    .rmeta { font-size: 10.5px; color: #b7ad96; }
+    .rname { font-size: 13px; font-weight: 900; color: #ffe38e; }
+    .rmeta { font-size: 10px; color: #b7ad96; }
     .exit { background: rgba(201,74,90,0.2); border: 1px solid rgba(201,74,90,0.6); color: #ff9ca8; border-radius: 10px; padding: 5px 10px; font-size: 11px; font-weight: 800; cursor: pointer; }
     .host { display: flex; flex-direction: column; align-items: center; }
-    .throne { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg,#fff0ad,#eab938,#8c5f09); padding: 3px; }
-    .throne-in { width: 100%; height: 100%; border-radius: 50%; background: #1a140b; display: flex; align-items: center; justify-content: center; font-size: 25px; }
+    .throne { width: 62px; height: 62px; border-radius: 50%; background: linear-gradient(135deg,#fff0ad,#eab938,#8c5f09); padding: 3px; }
+    .throne-in { width: 100%; height: 100%; border-radius: 50%; background: #1a140b; display: flex; align-items: center; justify-content: center; font-size: 24px; }
     .hlabel { margin-top: 4px; font-size: 11px; font-weight: 800; color: #ffe38e; background: #1b160d; border: 1px solid rgba(234,185,56,0.45); padding: 2px 10px; border-radius: 999px; }
     .mics { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px 6px; }
     .mic { display: flex; flex-direction: column; align-items: center; text-align: center; cursor: pointer; }
-    .mring { width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg,#ffe38e,#9a6d10); padding: 2px; position: relative; }
-    .min { width: 100%; height: 100%; border-radius: 50%; background: #14110c; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800; color: #ffe38e; }
+    .mring { width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg,#ffe38e,#9a6d10); padding: 2px; position: relative; }
+    .min { width: 100%; height: 100%; border-radius: 50%; background: #14110c; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; color: #ffe38e; }
     .mnum { position: absolute; bottom: -3px; left: 50%; transform: translateX(-50%); background: #1f1a10; border: 1px solid rgba(234,185,56,0.45); color: #ffe38e; font-size: 9px; font-weight: 800; padding: 0 5px; border-radius: 999px; }
-    .mname { margin-top: 5px; font-size: 10.5px; font-weight: 700; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .mpts { font-size: 9.5px; color: #eab938; }
-    .chat { background: #120f0b; border: 1px solid rgba(234,185,56,0.3); border-radius: 14px; padding: 8px 10px; height: 135px; overflow-y: auto; display: flex; flex-direction: column; gap: 5px; font-size: 12px; }
+    .mname { margin-top: 5px; font-size: 10px; font-weight: 700; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .mpts { font-size: 9px; color: #eab938; }
+    .chat { background: #120f0b; border: 1px solid rgba(234,185,56,0.3); border-radius: 14px; padding: 8px 10px; height: 130px; overflow-y: auto; display: flex; flex-direction: column; gap: 5px; font-size: 12px; }
     .sys { color: #ffe38e; font-size: 11px; }
     .bar { display: flex; gap: 6px; align-items: center; }
     .minput { flex: 1; min-width: 0; padding: 9px 12px; border-radius: 999px; border: 1px solid rgba(234,185,56,0.45); background: #17130c; color: #fff; font-size: 12px; }
     .abtn { width: 38px; height: 38px; border-radius: 50%; border: 1px solid rgba(234,185,56,0.45); background: #1c170e; color: #ffe38e; font-size: 15px; cursor: pointer; flex-shrink: 0; }
     .gbtn { background: linear-gradient(135deg,#ffe38e,#eab938); color: #161106; font-weight: 900; }
-    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.72); z-index: 40; align-items: center; justify-content: center; padding: 16px; }
-    .mcard { width: 100%; max-width: 360px; background: #16130d; border: 1px solid rgba(234,185,56,0.5); border-radius: 16px; padding: 14px; }
-    .mcard h3 { margin: 0 0 10px; color: #ffe38e; font-size: 14px; }
-    .mcard input { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #352d1d; background: #0d0b08; color: #fff; margin-bottom: 10px; }
-    .mbtns { display: flex; gap: 8px; }
-    .mbtns button { flex: 1; padding: 9px; border-radius: 10px; border: none; font-weight: 800; cursor: pointer; }
-    .save { background: linear-gradient(135deg,#ffe38e,#eab938); color: #161106; }
-    .cancel { background: #262118; color: #fff; }
+
+    .nav { display: none; position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; height: 62px; background: #120f09; border-top: 1px solid rgba(234,185,56,0.45); grid-template-columns: repeat(5,1fr); align-items: center; z-index: 20; }
+    .nbtn { border: none; background: none; color: #b7ad96; display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 10px; font-weight: 700; cursor: pointer; }
+    .nbtn.active { color: #ffe38e; }
   </style>
 </head>
 <body>
   <div class="app">
+    <!-- تسجيل الدخول -->
+    <div class="auth-screen" id="authView">
+      <span class="brand-tag">FAHD VOICE • تسجيل الدخول</span>
+      <h1 class="auth-title">Fahd Voice</h1>
+      <p class="auth-sub">سجّل دخولك برقم الموبايل أو بحساب جوجل لفتح الغرف الصوتية، الوكالات، ومتابعة التارجت.</p>
+
+      <label class="lbl">الاسم داخل التطبيق</label>
+      <input class="inp" id="authName" type="text" placeholder="مثال: الوكيل فهد" value="الوكيل فهد" />
+
+      <label class="lbl">رقم الموبايل</label>
+      <input class="inp" id="authPhone" type="tel" placeholder="مثال: +201000000000" />
+
+      <button class="btn-gold" id="phoneLoginBtn">دخول برقم الموبايل</button>
+
+      <div class="divider">أو</div>
+
+      <button class="btn-google" id="googleLoginBtn">G تسجيل الدخول عبر Google</button>
+    </div>
+
+    <!-- الشاشة الرئيسية -->
     <div class="home" id="homeView">
       <div class="top">
-        <div class="chip" id="profileChip">
+        <div class="chip" id="topProfileBtn">
           <div class="av" id="avTxt">ف</div>
           <div>
             <div class="uname" id="unameTxt">الوكيل فهد</div>
-            <div class="uid">ID: 1130318</div>
+            <div class="uid" id="uagencyTxt">وكالة الفهد • 1130318</div>
           </div>
         </div>
         <div class="top-btns">
-          <button class="ibtn" id="editBtn">✏️</button>
-          <button class="ibtn" id="trophyBtn">🏆</button>
+          <button class="ibtn" id="logoutBtn" title="تسجيل خروج">↩</button>
         </div>
       </div>
 
       <div class="banner" id="quickBanner">
         <div>
-          <div class="btitle">سهرة وكالات Fahd Voice الذهبية</div>
-          <div class="bsub">غرف صوتية • مايكات مفتوحة • هدايا فورية</div>
+          <div class="btitle" id="bannerAgencyTitle">وكالة الفهد • غرف Fahd Voice</div>
+          <div class="bsub" id="bannerTargetSub">إنجاز التارجت الحالي: 0 / 10,000 نقطة</div>
         </div>
-        <div class="btag">دخول سريع</div>
+        <div class="btag">دخول الروم</div>
       </div>
-
-      <div class="ticker">✨ توصيات مميزة: وكالة الفهد وترند العرب — اضغط على أي غرفة للدخول مباشرة ✨</div>
 
       <div class="tabs">
         <div class="tab-group">
-          <button class="tab active" data-t="popular">شائع</button>
-          <button class="tab" data-t="mine">غرفي</button>
-          <button class="tab" data-t="games">لعبة</button>
+          <button class="tab active" data-sec="rooms">الغرف</button>
+          <button class="tab" data-sec="agencies">الوكالات</button>
+          <button class="tab" data-sec="target">التارجت</button>
         </div>
-        <button class="add-btn" id="openCreateBtn">+ إنشاء روم</button>
+        <button class="add-btn" id="boostTargetBtn">+500 تارجت</button>
       </div>
 
-      <div class="grid" id="roomsGrid"></div>
-
-      <div class="nav" id="bottomNav">
-        <button class="nbtn active" data-t="popular"><span>🏠</span><span>غرف</span></button>
-        <button class="nbtn" data-t="games"><span>🎮</span><span>لعبة</span></button>
-        <button class="nbtn" data-t="popular"><span>🪐</span><span>اكتشاف</span></button>
-        <button class="nbtn" data-action="room"><span>🔔</span><span>الرسائل</span></button>
-        <button class="nbtn" data-action="profile"><span>👑</span><span>حسابي</span></button>
-      </div>
+      <div class="section-box" id="sectionContent"></div>
     </div>
 
+    <!-- داخل الروم -->
     <div class="room" id="roomView">
       <div class="rtop">
         <div>
@@ -132,7 +190,7 @@
 
       <div class="host">
         <div class="throne"><div class="throne-in">👑</div></div>
-        <div class="hlabel" id="hLabel">مضيف الروم • فهد</div>
+        <div class="hlabel" id="hLabel">مضيف الروم</div>
       </div>
 
       <div class="mics" id="micsBox"></div>
@@ -146,227 +204,141 @@
         <button class="abtn" id="sendBtn">➤</button>
       </div>
     </div>
-  </div>
 
-  <div class="modal" id="profModal">
-    <div class="mcard">
-      <h3>تعديل اسمك</h3>
-      <input id="profInput" type="text" placeholder="اكتب اسمك" />
-      <div class="mbtns">
-        <button class="save" id="saveProfBtn">حفظ</button>
-        <button class="cancel" id="closeProfBtn">إلغاء</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="modal" id="createModal">
-    <div class="mcard">
-      <h3>إنشاء روم جديدة</h3>
-      <input id="newTitle" type="text" placeholder="اسم الغرفة" />
-      <input id="newId" type="text" placeholder="رقم الغرفة" />
-      <div class="mbtns">
-        <button class="save" id="saveRoomBtn">دخول</button>
-        <button class="cancel" id="closeRoomBtn">إلغاء</button>
-      </div>
+    <!-- شريط التنقل السفلي -->
+    <div class="nav" id="bottomNav">
+      <button class="nbtn active" data-sec="rooms"><span>🏠</span><span>الغرف</span></button>
+      <button class="nbtn" data-sec="agencies"><span>🏛️</span><span>الوكالات</span></button>
+      <button class="nbtn" data-sec="target"><span>🎯</span><span>التارجت</span></button>
+      <button class="nbtn" data-sec="rooms"><span>🎮</span><span>لعبة</span></button>
+      <button class="nbtn" id="navAuthBtn"><span>👑</span><span>حسابي</span></button>
     </div>
   </div>
 
   <script>
-    var ZEGO = {
-      appId: 1110788264,
-      appSign: "385a7f5c710a552022440be2ee725dca8d01796396ee9927cd661a0ee7b7e610",
-      server: "wss://webliveroom1110788264-api.zego.im/ws"
+    var state = {
+      loggedIn: false,
+      method: "موبايل",
+      userName: "الوكيل فهد",
+      phone: "",
+      section: "rooms",
+      joinedAgencyId: "1130318",
+      targetPoints: 2500,
+      targetGoal: 10000,
+      targetHours: 12,
+      goalHours: 30,
+      muted: false,
+      seats: []
     };
 
-    var user = "فهد", tab = "popular", seats = [], muted = false;
-    var zg = null, localStream = null, activeRoomId = null, userId = "u_" + Math.floor(100000 + Math.random() * 900000);
-
-    var rooms = [
-      { id: "1130318", title: "غرفة الإدارة الرسمية", agency: "وكالة الفهد", tag: "مميزة", online: "48.0k", cat: "popular", bg: "linear-gradient(135deg,#5a3c09,#17130c)" },
-      { id: "32823", title: "سهرة ترند العرب", agency: "وكالة ترند العرب", tag: "أصدقاء", online: "678.6k", cat: "popular", bg: "linear-gradient(135deg,#2e1d52,#14111c)" },
-      { id: "1087188", title: "قلبي ومفتاحه", agency: "غرفة السهرات", tag: "VIP", online: "125.7k", cat: "mine", bg: "linear-gradient(135deg,#541629,#171014)" },
-      { id: "90500", title: "تحدي المايكات", agency: "ساحة التحديات", tag: "لعبة", online: "28.0k", cat: "games", bg: "linear-gradient(135deg,#144233,#0e1412)" }
+    var AGENCIES = [
+      { id: "1130318", name: "وكالة الفهد", code: "183874", hosts: 42, targetStatus: "نشط" },
+      { id: "32823", name: "وكالة ترند العرب", code: "992014", hosts: 68, targetStatus: "مميز" },
+      { id: "1087188", name: "وكالة قلبي ومفتاحه", code: "774120", hosts: 29, targetStatus: "نشط" }
     ];
 
-    function initZegoEngine() {
-      if (zg || !window.ZegoExpressEngine) return;
-      zg = new window.ZegoExpressEngine(ZEGO.appId, ZEGO.server);
-      zg.on("roomStreamUpdate", async function(roomID, updateType, streamList) {
-        if (updateType === "ADD") {
-          for (var i = 0; i < streamList.length; i++) {
-            var st = streamList[i];
-            try {
-              var remoteStream = await zg.startPlayingStream(st.streamID);
-              var audioEl = document.createElement("audio");
-              audioEl.autoplay = true;
-              audioEl.srcObject = remoteStream;
-              audioEl.play().catch(function(){});
-              sysMsg("🔊 متصل بصوت المتحدث في الروم");
-            } catch (e) {}
-          }
-        }
+    var ROOMS = [
+      { id: "1130318", title: "غرفة الإدارة الرسمية", agency: "وكالة الفهد", tag: "إدارة", online: "48.0k", bg: "linear-gradient(135deg,#5a3c09,#17130c)" },
+      { id: "32823", title: "سهرة ترند العرب", agency: "وكالة ترند العرب", tag: "سهرة", online: "678.6k", bg: "linear-gradient(135deg,#2e1d52,#14111c)" },
+      { id: "1087188", title: "قلبي ومفتاحه", agency: "وكالة قلبي ومفتاحه", tag: "VIP", online: "125.7k", bg: "linear-gradient(135deg,#541629,#171014)" },
+      { id: "90500", title: "تحدي التارجت والمايكات", agency: "وكالة الفهد", tag: "تحدي", online: "28.0k", bg: "linear-gradient(135deg,#144233,#0e1412)" }
+    ];
+
+    function getJoinedAgency() {
+      return AGENCIES.find(function(a){ return a.id === state.joinedAgencyId; }) || AGENCIES[0];
+    }
+
+    function completeLogin(methodLabel) {
+      var n = document.getElementById("authName").value.trim();
+      var p = document.getElementById("authPhone").value.trim();
+      state.userName = n || "الوكيل فهد";
+      state.phone = p;
+      state.method = methodLabel;
+      state.loggedIn = true;
+
+      document.getElementById("authView").style.display = "none";
+      document.getElementById("homeView").style.display = "flex";
+      document.getElementById("bottomNav").style.display = "grid";
+      renderHome();
+    }
+
+    function renderHome() {
+      var ag = getJoinedAgency();
+      document.getElementById("unameTxt").textContent = state.userName;
+      document.getElementById("avTxt").textContent = state.userName[0] || "ف";
+      document.getElementById("uagencyTxt").textContent = ag.name + " • " + state.method;
+      document.getElementById("bannerAgencyTitle").textContent = ag.name + " (ID: " + ag.id + ")";
+      document.getElementById("bannerTargetSub").textContent = "التارجت: " + state.targetPoints + " / " + state.targetGoal + " نقطة • " + state.targetHours + "/" + state.goalHours + " ساعة";
+
+      document.querySelectorAll(".tab").forEach(function(t){
+        t.classList.toggle("active", t.getAttribute("data-sec") === state.section);
       });
-    }
 
-    async function joinZegoRoom(roomId) {
-      initZegoEngine();
-      if (!zg) {
-        sysMsg("⚠️ تعذر تحميل محرك الصوت، تأكد من الاتصال بالإنترنت.");
-        return;
+      var box = document.getElementById("sectionContent");
+      box.innerHTML = "";
+
+      if (state.section === "rooms") {
+        var g = document.createElement("div");
+        g.className = "grid";
+        ROOMS.forEach(function(r){
+          var c = document.createElement("div");
+          c.className = "rcard";
+          c.innerHTML = '<div class="rthumb" style="background:' + r.bg + '"><span class="rbadge">' + r.tag + '</span><div class="rfoot"><span>🎧 ' + r.online + '</span><span>#' + r.id + '</span></div></div><div class="rbody"><div class="rtitle">' + r.title + '</div><div class="ragency">' + r.agency + '</div></div>';
+          c.onclick = function(){ enterRoom(r); };
+          g.appendChild(c);
+        });
+        box.appendChild(g);
+      } else if (state.section === "agencies") {
+        AGENCIES.forEach(function(a){
+          var isJoined = (a.id === state.joinedAgencyId);
+          var card = document.createElement("div");
+          card.className = "card-box";
+          card.innerHTML = '<div class="card-head"><span class="card-title">' + a.name + '</span><span class="pill-gold">ID: ' + a.id + '</span></div>' +
+            '<div class="muted-txt">كود التسجيل: ' + a.code + ' • عدد المضيفين: ' + a.hosts + ' • الحالة: ' + a.targetStatus + '</div>' +
+            '<div style="margin-top:8px;display:flex;gap:8px;align-items:center">' +
+            '<button class="btn-sm ' + (isJoined ? "active-join" : "") + '" data-aid="' + a.id + '">' + (isJoined ? "منضم للوكالة ✓" : "انضمام للوكالة") + '</button>' +
+            '</div>';
+          card.querySelector("button").onclick = function(){
+            state.joinedAgencyId = a.id;
+            renderHome();
+          };
+          box.appendChild(card);
+        });
+      } else if (state.section === "target") {
+        var pct = Math.min(100, Math.round((state.targetPoints / state.targetGoal) * 100));
+        var tCard = document.createElement("div");
+        tCard.className = "card-box";
+        tCard.innerHTML = '<div class="card-head"><span class="card-title">تارجت الوكالة والمضيف</span><span class="pill-gold">' + pct + '%</span></div>' +
+          '<div class="muted-txt">النقاط الحالية: ' + state.targetPoints + ' من ' + state.targetGoal + ' نقطة</div>' +
+          '<div class="progress-wrap"><div class="progress-bar" style="width:' + pct + '%"></div></div>' +
+          '<div class="muted-txt">ساعات التفاعل: ' + state.targetHours + ' من ' + state.goalHours + ' ساعة</div>' +
+          '<div style="margin-top:10px;display:flex;gap:8px">' +
+          '<button class="btn-sm active-join" id="addPtsBtn">+ 500 نقطة</button>' +
+          '<button class="btn-sm" id="addHrBtn">+ 1 ساعة</button>' +
+          '</div>';
+        box.appendChild(tCard);
+
+        document.getElementById("addPtsBtn").onclick = function(){
+          state.targetPoints += 500;
+          renderHome();
+        };
+        document.getElementById("addHrBtn").onclick = function(){
+          state.targetHours += 1;
+          renderHome();
+        };
       }
-      activeRoomId = String(roomId || "1130318").replace(/[^a-zA-Z0-9_]/g, "_") || "1130318";
-      try {
-        await zg.loginRoom(activeRoomId, "", { userID: userId, userName: user }, { userUpdate: true });
-        sysMsg("✅ تم الاتصال بالغرفة الصوتية (" + activeRoomId + ")");
-      } catch (err) {
-        sysMsg("ℹ️ وضع الصوت المحلي جاهز — اضغط على أي مايك لتجربة المايكروفون");
-      }
-    }
-
-    async function publishMicAudio() {
-      try {
-        if (!localStream && zg) {
-          localStream = await zg.createStream({ camera: { video: false, audio: true } });
-          await zg.startPublishingStream("s_" + userId + "_" + Date.now(), localStream);
-          sysMsg("🎙️ المايك شغال ومرتبط بالبث الصوتي");
-        } else if (localStream && zg) {
-          zg.mutePublishStreamAudio(localStream, muted);
-        }
-      } catch (e) {
-        sysMsg("🎙️ تأكد من السماح بإذن المايكروفون للتطبيق");
-      }
-    }
-
-    async function leaveZegoRoom() {
-      try {
-        if (localStream && zg) {
-          zg.stopPublishingStream("s_" + userId);
-          zg.destroyStream(localStream);
-          localStream = null;
-        }
-        if (activeRoomId && zg) {
-          await zg.logoutRoom(activeRoomId);
-          activeRoomId = null;
-        }
-      } catch (e) {}
-    }
-
-    function drawHome() {
-      document.getElementById("unameTxt").textContent = user;
-      document.getElementById("avTxt").textContent = (user[0] || "ف");
-      var list = (tab === "popular") ? rooms : rooms.filter(function(r){ return r.cat === tab; });
-      var g = document.getElementById("roomsGrid");
-      g.innerHTML = "";
-      list.forEach(function(r) {
-        var c = document.createElement("div");
-        c.className = "rcard";
-        c.innerHTML = '<div class="rthumb" style="background:' + r.bg + '"><span class="rbadge">' + r.tag + '</span><div class="rfoot"><span>🎧 ' + r.online + '</span><span>#' + r.id + '</span></div></div><div class="rbody"><div class="rtitle">' + r.title + '</div><div class="ragency">' + r.agency + '</div></div>';
-        c.onclick = function() { enterRoom(r); };
-        g.appendChild(c);
-      });
     }
 
     function enterRoom(r) {
-      muted = false;
-      seats = [];
-      for (var i = 1; i <= 8; i++) seats.push({ n: i, u: null, p: 0 });
+      state.muted = false;
+      state.seats = [];
+      for (var i = 1; i <= 8; i++) state.seats.push({ n: i, u: null, p: 0 });
       document.getElementById("homeView").style.display = "none";
+      document.getElementById("bottomNav").style.display = "none";
       document.getElementById("roomView").style.display = "flex";
       document.getElementById("rName").textContent = r.title;
-      document.getElementById("rMeta").textContent = "ID: " + r.id + " • Zego " + ZEGO.appId;
-      document.getElementById("hLabel").textContent = "مضيف الروم • " + user;
+      document.getElementById("rMeta").textContent = "ID: " + r.id + " • " + getJoinedAgency().name;
+      document.getElementById("hLabel").textContent = "مضيف الروم • " + state.userName;
       document.getElementById("chatBox").innerHTML = "";
       document.getElementById("micBtn").textContent = "🎙️";
-      drawMics();
-      sysMsg("مرحباً " + user + " في " + r.title);
-      joinZegoRoom(r.id);
-    }
-
-    function drawMics() {
-      var box = document.getElementById("micsBox");
-      box.innerHTML = "";
-      seats.forEach(function(s) {
-        var el = document.createElement("div");
-        el.className = "mic";
-        el.innerHTML = '<div class="mring"><div class="min">' + (s.u ? s.u[0] : "🎙️") + '</div><span class="mnum">' + s.n + '</span></div><div class="mname">' + (s.u || ("مايك " + s.n)) + '</div><div class="mpts">' + (s.u ? ("💎 " + s.p) : "متاح") + '</div>';
-        el.onclick = function() {
-          if (s.u === user) {
-            s.u = null;
-            sysMsg(user + " نزل من مايك " + s.n);
-          } else {
-            seats.forEach(function(x){ if (x.u === user) x.u = null; });
-            s.u = user;
-            sysMsg(user + " صعد على مايك " + s.n);
-            publishMicAudio();
-          }
-          drawMics();
-        };
-        box.appendChild(el);
-      });
-    }
-
-    function sysMsg(t) {
-      var b = document.getElementById("chatBox");
-      var d = document.createElement("div");
-      d.className = "sys";
-      d.textContent = t;
-      b.appendChild(d);
-      b.scrollTop = b.scrollHeight;
-    }
-
-    function sendMsg() {
-      var inp = document.getElementById("msgInput");
-      var val = inp.value.trim();
-      if (!val) return;
-      var b = document.getElementById("chatBox");
-      var d = document.createElement("div");
-      d.innerHTML = '<strong style="color:#eab938">' + user + ':</strong> ' + val;
-      b.appendChild(d);
-      b.scrollTop = b.scrollHeight;
-      inp.value = "";
-    }
-
-    document.querySelectorAll(".tab").forEach(function(b) {
-      b.onclick = function() {
-        tab = b.getAttribute("data-t");
-        document.querySelectorAll(".tab").forEach(function(x){ x.classList.remove("active"); });
-        b.classList.add("active");
-        drawHome();
-      };
-    });
-
-    document.querySelectorAll(".nbtn").forEach(function(b) {
-      b.onclick = function() {
-        var act = b.getAttribute("data-action");
-        var t = b.getAttribute("data-t");
-        if (act === "room") return enterRoom(rooms[0]);
-        if (act === "profile") return openProf();
-        if (t) {
-          tab = t;
-          document.querySelectorAll(".tab").forEach(function(x){ x.classList.toggle("active", x.getAttribute("data-t") === t); });
-          drawHome();
-        }
-      };
-    });
-
-    function openProf() {
-      document.getElementById("profInput").value = user;
-      document.getElementById("profModal").style.display = "flex";
-    }
-
-    document.getElementById("profileChip").onclick = openProf;
-    document.getElementById("editBtn").onclick = openProf;
-    document.getElementById("trophyBtn").onclick = function(){ enterRoom(rooms[0]); };
-    document.getElementById("quickBanner").onclick = function(){ enterRoom(rooms[0]); };
-    document.getElementById("exitBtn").onclick = function() {
-      leaveZegoRoom();
-      document.getElementById("roomView").style.display = "none";
-      document.getElementById("homeView").style.display = "flex";
-      drawHome();
-    };
-    document.getElementById("sendBtn").onclick = sendMsg;
-    document.getElementById("msgInput").onkeydown = function(e){ if (e.key === "Enter") sendMsg(); };
-    document.getElementById("micBtn").onclick = function() {
-      muted = !muted;
-      this.textContent = muted ? "🔇" : "🎙️";
-      if (localStream && zg) 
+   
