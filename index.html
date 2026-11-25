@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fahd Voice</title>
+  <style>
+    :root {
+      --bg: #0b0b0e;
+      --card: #15151b;
+      --gold: #d4af37;
+      --gold-soft: rgba(212, 175, 55, 0.16);
+      --text: #f5f5f7;
+      --muted: #a1a1aa;
+    }
+    * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top, #1d180a 0%, var(--bg) 55%);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 16px;
+    }
+    .box {
+      max-width: 520px;
+      margin: 0 auto;
+      background: var(--card);
+      border: 1px solid rgba(212, 175, 55, 0.35);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.55);
+    }
+    h1 {
+      margin: 0 0 6px;
+      color: var(--gold);
+      font-size: 24px;
+      text-align: center;
+    }
+    p.sub {
+      margin: 0 0 16px;
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+    }
+    label { display: block; font-size: 13px; color: var(--gold); margin-bottom: 6px; }
+    input {
+      width: 100%;
+      padding: 11px 12px;
+      border-radius: 10px;
+      border: 1px solid #2c2c36;
+      background: #0f0f14;
+      color: var(--text);
+      margin-bottom: 12px;
+      font-size: 14px;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #f0cf65, #b88a1e);
+      color: #111;
+      font-weight: 700;
+      font-size: 15px;
+      cursor: pointer;
+    }
+    .room-panel { display: none; margin-top: 14px; }
+    .mics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin: 14px 0;
+    }
+    .mic {
+      background: var(--gold-soft);
+      border: 1px solid rgba(212, 175, 55, 0.4);
+      border-radius: 12px;
+      padding: 10px 6px;
+      text-align: center;
+      font-size: 12px;
+    }
+    .chat-box {
+      background: #0f0f14;
+      border: 1px solid #262630;
+      border-radius: 12px;
+      padding: 10px;
+      height: 150px;
+      overflow-y: auto;
+      margin-bottom: 10px;
+      font-size: 13px;
+    }
+    .row { display: flex; gap: 8px; }
+    .row input { margin-bottom: 0; }
+    .row button { width: auto; padding: 0 16px; }
+    .status { font-size: 12px; color: var(--muted); margin-top: 10px; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>Fahd Voice</h1>
+    <p class="sub">غرف الدردشة الصوتية والمايكات المباشرة</p>
+
+    <div id="joinForm">
+      <label>اسمك داخل الغرفة</label>
+      <input id="userName" type="text" placeholder="مثال: أحمد" />
+      <label>رقم أو اسم الغرفة</label>
+      <input id="roomId" type="text" placeholder="مثال: 1130318" />
+      <button onclick="enterRoom()">دخول الغرفة الصوتية</button>
+    </div>
+
+    <div id="roomPanel" class="room-panel">
+      <div id="roomTitle" style="color: var(--gold); font-weight: 700; margin-bottom: 8px;"></div>
+      <div class="mics" id="micsGrid"></div>
+      <div class="chat-box" id="chatBox"></div>
+      <div class="row">
+        <input id="msgInput" type="text" placeholder="اكتب رسالة في الغرفة..." />
+        <button onclick="sendMsg()">إرسال</button>
+      </div>
+      <div class="status" id="statusText">Zego AppID: 1110788264</div>
+    </div>
+  </div>
+
+  <script>
+    const ZEGO_CONFIG = {
+      appId: 1110788264,
+      appSign: "385a7f5c710a552022440be2ee725dca8d01796396ee9927cd661a0ee7b7e610"
+    };
+
+    function enterRoom() {
+      const name = document.getElementById("userName").value.trim() || "ضيف";
+      const room = document.getElementById("roomId").value.trim() || "FahdRoom";
+      document.getElementById("joinForm").style.display = "none";
+      document.getElementById("roomPanel").style.display = "block";
+      document.getElementById("roomTitle").textContent = "غرفة: " + room + " — مرحباً " + name;
+
+      const micsGrid = document.getElementById("micsGrid");
+      micsGrid.innerHTML = "";
+      for (let i = 1; i <= 8; i++) {
+        const div = document.createElement("div");
+        div.className = "mic";
+        div.textContent = "مايك " + i;
+        micsGrid.appendChild(div);
+      }
+      appendChat("النظام", "تم تهيئة الغرفة (" + room + ") بمعرف الصوت " + ZEGO_CONFIG.appId);
+    }
+
+    function sendMsg() {
+      const input = document.getElementById("msgInput");
+      const text = input.value.trim();
+      if (!text) return;
+      const name = document.getElementById("userName").value.trim() || "ضيف";
+      appendChat(name, text);
+      input.value = "";
+    }
+
+    function appendChat(sender, text) {
+      const chatBox = document.getElementById("chatBox");
+      const line = document.createElement("div");
+      line.style.marginBottom = "6px";
+      line.innerHTML = "<strong style='color:#d4af37'>" + sender + ":</strong> " + text;
+      chatBox.appendChild(line);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+  </script>
+</body>
+</html>
